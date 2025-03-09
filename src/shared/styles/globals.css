@@ -1,8 +1,18 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
+
+@utility w-19 {
+  width: 74px;
+}
+@utility w-15 {
+  width: 54px;
+}
+@utility w-83 {
+  width: 353px;
+}
 
 @theme inline {
   --color-background: var(--background);
