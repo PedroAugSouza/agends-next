@@ -25,7 +25,11 @@ export const LoginModule = () => {
           </span>
         </h1>
         <TextField placeholder="Insira seu email." label="Email" />
-        <TextField placeholder="Insira sua senha." label="Senha" />
+        <TextField
+          placeholder="Insira sua senha."
+          label="Senha"
+          type="password"
+        />
         <Button
           className="h-11 w-full cursor-pointer bg-violet-700 text-lg hover:bg-violet-500"
           variant={'default'}
