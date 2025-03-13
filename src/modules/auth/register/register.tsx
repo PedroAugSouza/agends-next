@@ -18,6 +18,18 @@ import { registerUserSchema } from '@/shared/schemas/register-user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getMonth } from '@/shared/utils/getMonth';
 import clsx from 'clsx';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
+import { SelectViewport } from '@radix-ui/react-select';
+import { getYear, setMonth, setYear, getMonth as getMonthFNS } from 'date-fns';
+import React from 'react';
+import { PopoverArrow } from '@radix-ui/react-popover';
 
 const lilita = Lilita_One({
   variable: '--font-lilitaone',
@@ -34,13 +46,44 @@ export const RegisterModule = () => {
     register,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<FormProps>({
     resolver: zodResolver(registerUserSchema),
   });
 
-  console.log(errors);
+  const months = [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
+  ];
 
-  const passwrodErrors = errors.password;
+  const startsYear = getYear(new Date()) - 100;
+
+  const currentDate = watch('dateBirth') ? watch('dateBirth') : new Date();
+
+  const years = Array.from(
+    { length: 2025 - startsYear + 1 },
+    (_, i) => startsYear + i,
+  ).reverse();
+
+  const handleMonthChange = (month: string) => {
+    const newDate = setMonth(currentDate, months.indexOf(month));
+    setValue('dateBirth', newDate);
+  };
+
+  const handleYearChange = (year: string) => {
+    const newDate = setYear(currentDate, Number(year));
+    setValue('dateBirth', newDate);
+  };
 
   return (
     <main className="grid h-screen place-items-center">
@@ -77,58 +120,10 @@ export const RegisterModule = () => {
           placeholder="Insira sua senha."
           label="Senha"
           type="password"
+          error={errors.password?.message}
           {...register('password')}
         />
-        <div className="flex w-full flex-col items-center gap-2.5 text-sm">
-          <div className="flex w-full items-center justify-start gap-2.5 text-gray-700">
-            <div
-              className={clsx('grid size-5 place-items-center rounded', {
-                'bg-red-500': passwrodErrors?.message === '2',
-                'bg-emerald-500': passwrodErrors?.message !== '2',
-              })}
-            >
-              {passwrodErrors?.message === '2' ? (
-                <X color={colors.white} size={18} />
-              ) : (
-                <Check color={colors.white} size={18} />
-              )}
-            </div>
 
-            <span>Deve conter letras e números.</span>
-          </div>
-          <div className="flex w-full items-center justify-start gap-2.5 text-gray-700">
-            <div
-              className={clsx('grid size-5 place-items-center rounded', {
-                'bg-red-500': passwrodErrors?.message === '1',
-                'bg-emerald-500': passwrodErrors?.message !== '1',
-              })}
-            >
-              {passwrodErrors?.message === '1' ? (
-                <X color={colors.white} size={18} />
-              ) : (
-                <Check color={colors.white} size={18} />
-              )}
-            </div>
-
-            <span>Deve conter mais de oito caracteres.</span>
-          </div>
-          <div className="flex w-full items-center justify-start gap-2.5 text-gray-700">
-            <div
-              className={clsx('grid size-5 place-items-center rounded', {
-                'bg-red-500': passwrodErrors?.message === '3',
-                'bg-emerald-500': passwrodErrors?.message !== '3',
-              })}
-            >
-              {passwrodErrors?.message === '3' ? (
-                <X color={colors.white} size={18} />
-              ) : (
-                <Check color={colors.white} size={18} />
-              )}
-            </div>
-
-            <span>Deve conter caracteres especiais: _, @, #, etc.</span>
-          </div>
-        </div>
         <TextField
           placeholder="Confirme sua senha.."
           label="Confirme sua senha"
@@ -157,7 +152,7 @@ export const RegisterModule = () => {
                 {' '}
                 {watch('dateBirth')?.getFullYear()
                   ? watch('dateBirth')?.getFullYear()
-                  : 'MM'}
+                  : 'YYYY'}
               </div>
               <Popover>
                 <PopoverTrigger className="grid h-full w-15 cursor-pointer place-items-center rounded bg-gray-100">
@@ -167,21 +162,70 @@ export const RegisterModule = () => {
                     strokeWidth={1.5}
                   />
                 </PopoverTrigger>
-                <PopoverContent>
+                <PopoverContent className="w-max p-0">
+                  <PopoverArrow className="fill-gray-300" />
+                  <div className="flex w-full items-center justify-between gap-2.5 px-4 pt-3">
+                    <Select
+                      onValueChange={handleMonthChange}
+                      value={getMonth(getMonthFNS(currentDate))}
+                    >
+                      <SelectTrigger className="h-7 flex-1 cursor-pointer">
+                        <SelectValue
+                          className="text-gray-700"
+                          placeholder={getMonth(getMonthFNS(currentDate))}
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="h-52 overflow-y-auto">
+                        {months.map((month) => (
+                          <SelectItem
+                            key={month}
+                            value={month.toString()}
+                            className="cursor-pointer"
+                          >
+                            {month}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      onValueChange={handleYearChange}
+                      value={getYear(currentDate).toString()}
+                    >
+                      <SelectTrigger className="h-7 flex-1 cursor-pointer">
+                        <SelectValue
+                          className="text-gray-700"
+                          placeholder={getYear(currentDate).toString()}
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="h-52 overflow-y-auto">
+                        {years.map((year) => (
+                          <SelectItem
+                            key={year}
+                            value={year.toString()}
+                            className="cursor-pointer"
+                          >
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Controller
                     control={control}
                     name="dateBirth"
                     render={({ field }) => (
                       <Calendar
                         locale={ptBR}
-                        className="rounded-lg"
+                        className="w-max rounded-lg"
                         mode="single"
                         selected={field.value}
                         classNames={{
                           day_selected:
                             'bg-violet-600 text-white hover:bg-violet-500 hover:text-white',
                         }}
+                        month={field.value}
                         onSelect={(value) => field.onChange(value)}
+                        // onMonthChange={(value) => field.onChange(value)}
                       />
                     )}
                   />
