@@ -70,7 +70,6 @@ export const RegisterModule = () => {
   ];
 
   const startsYear = getYear(new Date()) - 100;
-  console.log(serverErrors);
 
   const currentDate = watch('dateBirth') ? watch('dateBirth') : new Date();
 
@@ -231,7 +230,6 @@ export const RegisterModule = () => {
                         }}
                         month={field.value}
                         onSelect={(value) => field.onChange(value)}
-                        // onMonthChange={(value) => field.onChange(value)}
                       />
                     )}
                   />

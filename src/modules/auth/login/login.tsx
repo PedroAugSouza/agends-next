@@ -3,6 +3,11 @@ import { Lilita_One } from 'next/font/google';
 import { TextField } from '../components/text-field';
 import { Button } from '@/shared/components/ui/button';
 import Link from 'next/link';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { authenticateUserSchema } from '@/shared/schemas/authenticate-user.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 const lilita = Lilita_One({
   variable: '--font-lilitaone',
@@ -10,10 +15,25 @@ const lilita = Lilita_One({
   weight: '400',
 });
 
+type FormType = z.infer<typeof authenticateUserSchema>;
+
 export const LoginModule = () => {
+  const { register, handleSubmit } = useForm<FormType>({
+    resolver: zodResolver(authenticateUserSchema),
+  });
+
+  const { signIn } = useAuth();
+
+  const onSubmit: SubmitHandler<FormType> = (data) => {
+    signIn(data);
+  };
+
   return (
     <main className="grid h-screen place-items-center">
-      <form className="relative flex w-80 flex-col items-center justify-start gap-2.5">
+      <form
+        className="relative flex w-80 flex-col items-center justify-start gap-2.5"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <div className="absolute right-28 -z-10 size-64 opacity-25 blur-lg">
           <div className="absolute size-52 rounded-full bg-sky-300" />
           <div className="absolute top-10 left-36 size-52 rounded-full bg-blue-300" />
@@ -25,11 +45,16 @@ export const LoginModule = () => {
             Agends
           </span>
         </h1>
-        <TextField placeholder="Insira seu email." label="Email" />
+        <TextField
+          placeholder="Insira seu email."
+          label="Email"
+          {...register('email')}
+        />
         <TextField
           placeholder="Insira sua senha."
           label="Senha"
           type="password"
+          {...register('password')}
         />
         <Button
           className="h-11 w-full cursor-pointer bg-violet-700 text-lg hover:bg-violet-500"

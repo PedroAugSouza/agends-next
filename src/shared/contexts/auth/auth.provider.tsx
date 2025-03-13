@@ -31,18 +31,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email: input.email,
       name: input.name,
       password: input.password,
-    }).catch((error) => {
-      if (error.response.data.reason === ApiErrors.USER_ALREADY_EXISTS) {
-        setServerErrors({
-          email: 'Email já cadastrado.',
-        });
-      }
-      if (error.response.data.reason === ApiErrors.PARAM_INVALID_ERROR) {
-        setServerErrors({
-          dateBirth: 'Data inválida.',
-        });
-      }
-    });
+    })
+      .catch((error) => {
+        if (error.response.data.reason === ApiErrors.USER_ALREADY_EXISTS) {
+          setServerErrors({
+            email: 'Email já cadastrado.',
+          });
+        }
+        if (error.response.data.reason === ApiErrors.PARAM_INVALID_ERROR) {
+          setServerErrors({
+            dateBirth: 'Data inválida.',
+          });
+        }
+      })
+      .then(() => {
+        push('/login');
+      });
   };
 
   const signIn = (input: SigninInput) => {
@@ -67,10 +71,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .then((response) => {
         if (!response) return;
 
-        const user =
+        const userDecoded =
           (jwtDecode(response?.data.access_token ?? '') as User) || null;
 
-        setUser(user);
+        setUser({ ...userDecoded, token: response!.data.access_token! });
+
+        push('/');
       });
   };
 
