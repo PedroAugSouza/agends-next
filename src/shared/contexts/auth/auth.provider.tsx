@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { AuthContext } from './auth.context';
 import {
@@ -6,8 +7,15 @@ import {
   SignupInput,
   User,
 } from './auth.contact';
-import { useRegisterUserControllerHandle } from '@/shared/http/http';
+import {
+  authenticateUserControllerHandle,
+  registerUserControllerHandle,
+  useAuthenticateUserControllerHandle,
+  useRegisterUserControllerHandle,
+} from '@/shared/http/http';
 import { ApiErrors } from '@/shared/constants/api-errors.constants';
+import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -15,16 +23,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
 
-  const signUp = (input: SignupInput) => {
-    const { error } = useRegisterUserControllerHandle({
-      axios: {
-        data: {
-          ...input,
-        },
-      },
-    });
+  const { push } = useRouter();
 
-    if (error?.response) {
+  const signUp = (input: SignupInput) => {
+    registerUserControllerHandle({
+      dateBirth: input.dateBirth.toISOString(),
+      email: input.email,
+      name: input.name,
+      password: input.password,
+    }).catch((error) => {
       if (error.response.data.reason === ApiErrors.USER_ALREADY_EXISTS) {
         setServerErrors({
           email: 'Email já cadastrado.',
@@ -35,13 +42,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           dateBirth: 'Data inválida.',
         });
       }
-    }
+    });
   };
 
-  const signIn = (input: SigninInput) => {};
+  const signIn = (input: SigninInput) => {
+    authenticateUserControllerHandle({
+      email: input.email,
+      password: input.password,
+    })
+      .catch((error) => {
+        if (error.response.data.reason === ApiErrors.USER_NOT_FOUND) {
+          setServerErrors({
+            email: 'Email não cadastrado.',
+          });
+        }
+        if (error.response.data.reason === ApiErrors.UNAUTHORIZED) {
+          setServerErrors({
+            password: 'Senha inválida.',
+          });
+        }
+
+        return;
+      })
+      .then((response) => {
+        if (!response) return;
+
+        const user =
+          (jwtDecode(response?.data.access_token ?? '') as User) || null;
+
+        setUser(user);
+      });
+  };
 
   const signOut = () => {
     setUser(null);
+
+    push('/login');
   };
 
   return (

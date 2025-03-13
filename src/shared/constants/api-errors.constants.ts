@@ -4,4 +4,5 @@ export enum ApiErrors {
   USER_ALREADY_EXISTS = '[User Already Exists]',
   USER_NOT_FOUND = '[User Not Found]',
   UNEXPECTED_ERROR = '[Unexpected Error]',
+  UNAUTHORIZED = '[Param Invalid Error]',
 }

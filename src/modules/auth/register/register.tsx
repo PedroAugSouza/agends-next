@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 import { Calendar } from '@/shared/components/ui/calendar';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { registerUserSchema } from '@/shared/schemas/register-user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +30,7 @@ import { SelectViewport } from '@radix-ui/react-select';
 import { getYear, setMonth, setYear, getMonth as getMonthFNS } from 'date-fns';
 import React from 'react';
 import { PopoverArrow } from '@radix-ui/react-popover';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 const lilita = Lilita_One({
   variable: '--font-lilitaone',
@@ -40,6 +41,8 @@ const lilita = Lilita_One({
 type FormProps = z.infer<typeof registerUserSchema>;
 
 export const RegisterModule = () => {
+  const { signUp, serverErrors } = useAuth();
+
   const {
     control,
     handleSubmit,
@@ -67,6 +70,7 @@ export const RegisterModule = () => {
   ];
 
   const startsYear = getYear(new Date()) - 100;
+  console.log(serverErrors);
 
   const currentDate = watch('dateBirth') ? watch('dateBirth') : new Date();
 
@@ -85,13 +89,15 @@ export const RegisterModule = () => {
     setValue('dateBirth', newDate);
   };
 
+  const onSubmit: SubmitHandler<FormProps> = (data) => {
+    signUp(data);
+  };
+
   return (
     <main className="grid h-screen place-items-center">
       <form
         className="relative flex w-83 flex-col items-center justify-start gap-2.5"
-        onSubmit={handleSubmit((data) => {
-          console.log(data);
-        })}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="absolute right-28 -z-10 size-64 opacity-25 blur-lg">
           <div className="absolute size-52 rounded-full bg-sky-300" />
@@ -113,7 +119,7 @@ export const RegisterModule = () => {
         <TextField
           placeholder="Insira seu email."
           label="Email"
-          error={errors.email?.message}
+          error={errors.email?.message || serverErrors?.email}
           {...register('email')}
         />
         <TextField
@@ -233,7 +239,7 @@ export const RegisterModule = () => {
               </Popover>
             </div>
           }
-          error={errors.dateBirth?.message}
+          error={errors.dateBirth?.message || serverErrors?.dateBirth}
         />
 
         <Button

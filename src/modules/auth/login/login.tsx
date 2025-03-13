@@ -1,3 +1,4 @@
+'use client';
 import { Lilita_One } from 'next/font/google';
 import { TextField } from '../components/text-field';
 import { Button } from '@/shared/components/ui/button';
