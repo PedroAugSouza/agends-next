@@ -17,20 +17,26 @@ import { z } from 'zod';
 import { registerUserSchema } from '@/shared/schemas/register-user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getMonth } from '@/shared/utils/getMonth';
-import clsx from 'clsx';
+
 import {
   Select,
   SelectContent,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { SelectViewport } from '@radix-ui/react-select';
 import { getYear, setMonth, setYear, getMonth as getMonthFNS } from 'date-fns';
 import React from 'react';
 import { PopoverArrow } from '@radix-ui/react-popover';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { useMediaQuery } from '@uidotdev/usehooks';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/shared/components/ui/drawer';
+import clsx from 'clsx';
 
 const lilita = Lilita_One({
   variable: '--font-lilitaone',
@@ -41,6 +47,8 @@ const lilita = Lilita_One({
 type FormProps = z.infer<typeof registerUserSchema>;
 
 export const RegisterModule = () => {
+  const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+
   const { signUp, serverErrors } = useAuth();
 
   const {
@@ -93,7 +101,12 @@ export const RegisterModule = () => {
   };
 
   return (
-    <main className="grid h-screen place-items-center">
+    <main
+      className={clsx('', {
+        'grid h-screen place-items-center': !isSmallDevice,
+        'item-center flex justify-center pt-12': isSmallDevice,
+      })}
+    >
       <form
         className="relative flex w-83 flex-col items-center justify-start gap-2.5"
         onSubmit={handleSubmit(onSubmit)}
@@ -159,82 +172,173 @@ export const RegisterModule = () => {
                   ? watch('dateBirth')?.getFullYear()
                   : 'YYYY'}
               </div>
-              <Popover>
-                <PopoverTrigger className="grid h-full w-15 cursor-pointer place-items-center rounded bg-gray-100">
-                  <CalendarIcon
-                    color={colors.gray[700]}
-                    size={16}
-                    strokeWidth={1.5}
-                  />
-                </PopoverTrigger>
-                <PopoverContent className="w-max p-0">
-                  <PopoverArrow className="fill-gray-300" />
-                  <div className="flex w-full items-center justify-between gap-2.5 px-4 pt-3">
-                    <Select
-                      onValueChange={handleMonthChange}
-                      value={getMonth(getMonthFNS(currentDate))}
-                    >
-                      <SelectTrigger className="h-7 flex-1 cursor-pointer">
-                        <SelectValue
-                          className="text-gray-700"
-                          placeholder={getMonth(getMonthFNS(currentDate))}
+
+              {isSmallDevice ? (
+                <Drawer
+                  shouldScaleBackground={true}
+                  setBackgroundColorOnScale={false}
+                >
+                  <DrawerTrigger
+                    className="grid h-full w-15 cursor-pointer place-items-center rounded bg-gray-100"
+                    type="button"
+                  >
+                    <CalendarIcon
+                      color={colors.gray[700]}
+                      size={16}
+                      strokeWidth={1.5}
+                    />
+                  </DrawerTrigger>
+                  <DrawerContent className="flex flex-col items-center justify-center pb-2.5">
+                    <DrawerTitle className="text-gray-700">
+                      Selecione a data de nascimento
+                    </DrawerTitle>
+                    <div className="flex w-full items-center justify-center gap-2.5 px-4 pt-3">
+                      <Select
+                        onValueChange={handleMonthChange}
+                        value={getMonth(getMonthFNS(currentDate))}
+                      >
+                        <SelectTrigger className="h-10 w-40 cursor-pointer">
+                          <SelectValue
+                            className="text-gray-700"
+                            placeholder={getMonth(getMonthFNS(currentDate))}
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="h-64 overflow-y-auto">
+                          {months.map((month) => (
+                            <SelectItem
+                              key={month}
+                              value={month.toString()}
+                              className="h-10 cursor-pointer"
+                            >
+                              {month}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        onValueChange={handleYearChange}
+                        value={getYear(currentDate).toString()}
+                      >
+                        <SelectTrigger className="h-10 w-40 cursor-pointer">
+                          <SelectValue
+                            className="text-gray-700"
+                            placeholder={getYear(currentDate).toString()}
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="h-64 overflow-y-auto">
+                          {years.map((year) => (
+                            <SelectItem
+                              key={year}
+                              value={year.toString()}
+                              className="h-10 cursor-pointer"
+                            >
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Controller
+                      control={control}
+                      name="dateBirth"
+                      render={({ field }) => (
+                        <Calendar
+                          locale={ptBR}
+                          className="w-max rounded-lg"
+                          mode="single"
+                          selected={field.value}
+                          classNames={{
+                            day_selected:
+                              'bg-violet-600 text-white hover:bg-violet-500 hover:text-white',
+                            cell: 'size-10',
+                            head_cell: 'w-10 font-normal',
+                            nav_button: 'disable opacity-0 pointer-events-none',
+                          }}
+                          month={field.value}
+                          onSelect={(value) => field.onChange(value)}
                         />
-                      </SelectTrigger>
-                      <SelectContent className="h-52 overflow-y-auto">
-                        {months.map((month) => (
-                          <SelectItem
-                            key={month}
-                            value={month.toString()}
-                            className="cursor-pointer"
-                          >
-                            {month}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      onValueChange={handleYearChange}
-                      value={getYear(currentDate).toString()}
-                    >
-                      <SelectTrigger className="h-7 flex-1 cursor-pointer">
-                        <SelectValue
-                          className="text-gray-700"
-                          placeholder={getYear(currentDate).toString()}
+                      )}
+                    />
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Popover>
+                  <PopoverTrigger className="grid h-full w-15 cursor-pointer place-items-center rounded bg-gray-100">
+                    <CalendarIcon
+                      color={colors.gray[700]}
+                      size={16}
+                      strokeWidth={1.5}
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-max p-0">
+                    <PopoverArrow className="fill-gray-300" />
+                    <div className="flex w-full items-center justify-between gap-2.5 px-4 pt-3">
+                      <Select
+                        onValueChange={handleMonthChange}
+                        value={getMonth(getMonthFNS(currentDate))}
+                      >
+                        <SelectTrigger className="h-7 flex-1 cursor-pointer">
+                          <SelectValue
+                            className="text-gray-700"
+                            placeholder={getMonth(getMonthFNS(currentDate))}
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="h-52 overflow-y-auto">
+                          {months.map((month) => (
+                            <SelectItem
+                              key={month}
+                              value={month.toString()}
+                              className="cursor-pointer"
+                            >
+                              {month}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        onValueChange={handleYearChange}
+                        value={getYear(currentDate).toString()}
+                      >
+                        <SelectTrigger className="h-7 flex-1 cursor-pointer">
+                          <SelectValue
+                            className="text-gray-700"
+                            placeholder={getYear(currentDate).toString()}
+                          />
+                        </SelectTrigger>
+                        <SelectContent className="h-52 overflow-y-auto">
+                          {years.map((year) => (
+                            <SelectItem
+                              key={year}
+                              value={year.toString()}
+                              className="cursor-pointer"
+                            >
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Controller
+                      control={control}
+                      name="dateBirth"
+                      render={({ field }) => (
+                        <Calendar
+                          locale={ptBR}
+                          className="w-max rounded-lg"
+                          mode="single"
+                          selected={field.value}
+                          classNames={{
+                            day_selected:
+                              'bg-violet-600 text-white hover:bg-violet-500 hover:text-white',
+                          }}
+                          month={field.value}
+                          onSelect={(value) => field.onChange(value)}
                         />
-                      </SelectTrigger>
-                      <SelectContent className="h-52 overflow-y-auto">
-                        {years.map((year) => (
-                          <SelectItem
-                            key={year}
-                            value={year.toString()}
-                            className="cursor-pointer"
-                          >
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Controller
-                    control={control}
-                    name="dateBirth"
-                    render={({ field }) => (
-                      <Calendar
-                        locale={ptBR}
-                        className="w-max rounded-lg"
-                        mode="single"
-                        selected={field.value}
-                        classNames={{
-                          day_selected:
-                            'bg-violet-600 text-white hover:bg-violet-500 hover:text-white',
-                        }}
-                        month={field.value}
-                        onSelect={(value) => field.onChange(value)}
-                      />
-                    )}
-                  />
-                </PopoverContent>
-              </Popover>
+                      )}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
           }
           error={errors.dateBirth?.message || serverErrors?.dateBirth}

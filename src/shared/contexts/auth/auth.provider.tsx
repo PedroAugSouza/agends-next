@@ -10,8 +10,6 @@ import {
 import {
   authenticateUserControllerHandle,
   registerUserControllerHandle,
-  useAuthenticateUserControllerHandle,
-  useRegisterUserControllerHandle,
 } from '@/shared/http/http';
 import { ApiErrors } from '@/shared/constants/api-errors.constants';
 import { jwtDecode } from 'jwt-decode';

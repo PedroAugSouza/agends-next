@@ -28,12 +28,12 @@ export const registerUserSchema = z
           now.getDate(),
         );
         const maxDate = new Date(
-          now.getFullYear() - 18,
+          now.getFullYear() - 12,
           now.getMonth(),
           now.getDate(),
         );
         return date >= minDate && date <= maxDate;
-      }, 'Você deve ter mais de 18 anos para se cadastrar.'),
+      }, 'Você deve ter mais de 12 anos para se cadastrar.'),
   })
   .superRefine(({ password, passwordConfirmation }, ctx) => {
     if (password !== passwordConfirmation) {
