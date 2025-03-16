@@ -18,11 +18,15 @@ const lilita = Lilita_One({
 type FormType = z.infer<typeof authenticateUserSchema>;
 
 export const LoginModule = () => {
-  const { register, handleSubmit } = useForm<FormType>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormType>({
     resolver: zodResolver(authenticateUserSchema),
   });
 
-  const { signIn } = useAuth();
+  const { signIn, serverErrors } = useAuth();
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
     signIn(data);
@@ -49,12 +53,14 @@ export const LoginModule = () => {
           placeholder="Insira seu email."
           label="Email"
           {...register('email')}
+          error={serverErrors?.email || errors.email?.message}
         />
         <TextField
           placeholder="Insira sua senha."
           label="Senha"
           type="password"
           {...register('password')}
+          error={serverErrors?.password || errors.password?.message}
         />
         <Button
           className="h-11 w-full cursor-pointer bg-violet-700 text-lg hover:bg-violet-500"

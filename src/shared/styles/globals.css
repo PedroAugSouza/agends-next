@@ -13,6 +13,9 @@
 @utility w-83 {
   width: 353px;
 }
+@utility h-13 {
+  height: 54px;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -53,6 +56,26 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --animate-acordion-down: accordion-down 0.2s ease-out;
+  --animate-acordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
 }
 
 :root {

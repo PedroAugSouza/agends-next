@@ -14,6 +14,7 @@ import {
 import { ApiErrors } from '@/shared/constants/api-errors.constants';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import { setCookie } from 'cookies-next';
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -70,9 +71,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (!response) return;
 
         const userDecoded =
-          (jwtDecode(response?.data.access_token ?? '') as User) || null;
+          (jwtDecode(response!.data.access_token ?? '') as User) || null;
 
-        setUser({ ...userDecoded, token: response!.data.access_token! });
+        setCookie('token', response?.data.access_token ?? '');
+
+        setUser({ ...userDecoded, token: response?.data.access_token! });
 
         push('/');
       });
