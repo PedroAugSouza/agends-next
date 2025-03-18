@@ -326,6 +326,62 @@
         },
         "tags": ["Authenticate User Controller"]
       }
+    },
+    "/tags/{userUuid}": {
+      "get": {
+        "operationId": "GetAllTagsController_handle",
+        "parameters": [
+          {
+            "name": "userUuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutputGetAllTagsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Get All Tags Controller"]
+      }
     }
   },
   "info": {
@@ -444,6 +500,21 @@
           }
         },
         "required": ["email", "password"]
+      },
+      "OutputGetAllTagsDTO": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          }
+        },
+        "required": ["uuid", "name", "color"]
       }
     }
   }

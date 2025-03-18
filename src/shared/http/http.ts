@@ -5,21 +5,24 @@
  * Description for api
  * OpenAPI spec version: 1.0
  */
-import {
-  useMutation
-} from '@tanstack/react-query';
-import type {
-  MutationFunction,
-  UseMutationOptions,
-  UseMutationResult
-} from '@tanstack/react-query';
-
 import axios from 'axios';
 import type {
   AxiosError,
   AxiosRequestConfig,
   AxiosResponse
 } from 'axios';
+
+import useSwr from 'swr';
+import type {
+  Arguments,
+  Key,
+  SWRConfiguration
+} from 'swr';
+
+import useSWRMutation from 'swr/mutation';
+import type {
+  SWRMutationConfiguration
+} from 'swr/mutation';
 
 import {
   faker
@@ -73,6 +76,12 @@ export interface InputAuthenticateUser {
   password: string;
 }
 
+export interface OutputGetAllTagsDTO {
+  uuid: string;
+  name: string;
+  color: string;
+}
+
 export type AuthenticateUserControllerHandle201 = {
   access_token?: string;
 };
@@ -80,8 +89,6 @@ export type AuthenticateUserControllerHandle201 = {
 export const createTagsControllerHandle = (
     inputCreateTag: InputCreateTag, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.post(
       `http://localhost:8000/tag`,
       inputCreateTag,options
@@ -90,54 +97,36 @@ export const createTagsControllerHandle = (
 
 
 
-export const getCreateTagsControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTagsControllerHandle>>, TError,{data: InputCreateTag}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof createTagsControllerHandle>>, TError,{data: InputCreateTag}, TContext> => {
-    
-const mutationKey = ['createTagsControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getCreateTagsControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputCreateTag }): Promise<AxiosResponse<void>> => {
+    return createTagsControllerHandle(arg, options);
+  }
+}
+export const getCreateTagsControllerHandleMutationKey = () => [`http://localhost:8000/tag`] as const;
 
-      
+export type CreateTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createTagsControllerHandle>>>
+export type CreateTagsControllerHandleMutationError = AxiosError<IError>
 
+export const useCreateTagsControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof createTagsControllerHandle>>, TError, Key, InputCreateTag, Awaited<ReturnType<typeof createTagsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTagsControllerHandle>>, {data: InputCreateTag}> = (props) => {
-          const {data} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  createTagsControllerHandle(data,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getCreateTagsControllerHandleMutationKey();
+  const swrFn = getCreateTagsControllerHandleMutationFetcher(axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createTagsControllerHandle>>>
-    export type CreateTagsControllerHandleMutationBody = InputCreateTag
-    export type CreateTagsControllerHandleMutationError = AxiosError<IError>
-
-    export const useCreateTagsControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTagsControllerHandle>>, TError,{data: InputCreateTag}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof createTagsControllerHandle>>,
-        TError,
-        {data: InputCreateTag},
-        TContext
-      > => {
-
-      const mutationOptions = getCreateTagsControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const removeTagsControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.delete(
       `http://localhost:8000/tag/${uuid}`,options
     );
@@ -145,54 +134,36 @@ export const removeTagsControllerHandle = (
 
 
 
-export const getRemoveTagsControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeTagsControllerHandle>>, TError,{uuid: string}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof removeTagsControllerHandle>>, TError,{uuid: string}, TContext> => {
-    
-const mutationKey = ['removeTagsControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getRemoveTagsControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
+  return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
+    return removeTagsControllerHandle(uuid, options);
+  }
+}
+export const getRemoveTagsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/tag/${uuid}`] as const;
 
-      
+export type RemoveTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeTagsControllerHandle>>>
+export type RemoveTagsControllerHandleMutationError = AxiosError<IError>
 
+export const useRemoveTagsControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeTagsControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeTagsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeTagsControllerHandle>>, {uuid: string}> = (props) => {
-          const {uuid} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  removeTagsControllerHandle(uuid,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getRemoveTagsControllerHandleMutationKey(uuid);
+  const swrFn = getRemoveTagsControllerHandleMutationFetcher(uuid, axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RemoveTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeTagsControllerHandle>>>
-    
-    export type RemoveTagsControllerHandleMutationError = AxiosError<IError>
-
-    export const useRemoveTagsControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeTagsControllerHandle>>, TError,{uuid: string}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof removeTagsControllerHandle>>,
-        TError,
-        {uuid: string},
-        TContext
-      > => {
-
-      const mutationOptions = getRemoveTagsControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const createHabitControllerHandle = (
     inputCreateHabit: InputCreateHabit, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.post(
       `http://localhost:8000/habit`,
       inputCreateHabit,options
@@ -201,54 +172,36 @@ export const createHabitControllerHandle = (
 
 
 
-export const getCreateHabitControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createHabitControllerHandle>>, TError,{data: InputCreateHabit}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof createHabitControllerHandle>>, TError,{data: InputCreateHabit}, TContext> => {
-    
-const mutationKey = ['createHabitControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getCreateHabitControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputCreateHabit }): Promise<AxiosResponse<void>> => {
+    return createHabitControllerHandle(arg, options);
+  }
+}
+export const getCreateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
 
-      
+export type CreateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createHabitControllerHandle>>>
+export type CreateHabitControllerHandleMutationError = AxiosError<IError>
 
+export const useCreateHabitControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof createHabitControllerHandle>>, TError, Key, InputCreateHabit, Awaited<ReturnType<typeof createHabitControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createHabitControllerHandle>>, {data: InputCreateHabit}> = (props) => {
-          const {data} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  createHabitControllerHandle(data,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getCreateHabitControllerHandleMutationKey();
+  const swrFn = getCreateHabitControllerHandleMutationFetcher(axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createHabitControllerHandle>>>
-    export type CreateHabitControllerHandleMutationBody = InputCreateHabit
-    export type CreateHabitControllerHandleMutationError = AxiosError<IError>
-
-    export const useCreateHabitControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createHabitControllerHandle>>, TError,{data: InputCreateHabit}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof createHabitControllerHandle>>,
-        TError,
-        {data: InputCreateHabit},
-        TContext
-      > => {
-
-      const mutationOptions = getCreateHabitControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const updateHabitControllerHandle = (
     inputUpdateHabit: InputUpdateHabit, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.patch(
       `http://localhost:8000/habit`,
       inputUpdateHabit,options
@@ -257,54 +210,36 @@ export const updateHabitControllerHandle = (
 
 
 
-export const getUpdateHabitControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateHabitControllerHandle>>, TError,{data: InputUpdateHabit}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof updateHabitControllerHandle>>, TError,{data: InputUpdateHabit}, TContext> => {
-    
-const mutationKey = ['updateHabitControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getUpdateHabitControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputUpdateHabit }): Promise<AxiosResponse<void>> => {
+    return updateHabitControllerHandle(arg, options);
+  }
+}
+export const getUpdateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
 
-      
+export type UpdateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateHabitControllerHandle>>>
+export type UpdateHabitControllerHandleMutationError = AxiosError<IError>
 
+export const useUpdateHabitControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof updateHabitControllerHandle>>, TError, Key, InputUpdateHabit, Awaited<ReturnType<typeof updateHabitControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateHabitControllerHandle>>, {data: InputUpdateHabit}> = (props) => {
-          const {data} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  updateHabitControllerHandle(data,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getUpdateHabitControllerHandleMutationKey();
+  const swrFn = getUpdateHabitControllerHandleMutationFetcher(axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type UpdateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateHabitControllerHandle>>>
-    export type UpdateHabitControllerHandleMutationBody = InputUpdateHabit
-    export type UpdateHabitControllerHandleMutationError = AxiosError<IError>
-
-    export const useUpdateHabitControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateHabitControllerHandle>>, TError,{data: InputUpdateHabit}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof updateHabitControllerHandle>>,
-        TError,
-        {data: InputUpdateHabit},
-        TContext
-      > => {
-
-      const mutationOptions = getUpdateHabitControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const removeHabitsControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.delete(
       `http://localhost:8000/habit/${uuid}`,options
     );
@@ -312,54 +247,36 @@ export const removeHabitsControllerHandle = (
 
 
 
-export const getRemoveHabitsControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, TError,{uuid: string}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, TError,{uuid: string}, TContext> => {
-    
-const mutationKey = ['removeHabitsControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getRemoveHabitsControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
+  return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
+    return removeHabitsControllerHandle(uuid, options);
+  }
+}
+export const getRemoveHabitsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
 
-      
+export type RemoveHabitsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeHabitsControllerHandle>>>
+export type RemoveHabitsControllerHandleMutationError = AxiosError<IError>
 
+export const useRemoveHabitsControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeHabitsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, {uuid: string}> = (props) => {
-          const {uuid} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  removeHabitsControllerHandle(uuid,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getRemoveHabitsControllerHandleMutationKey(uuid);
+  const swrFn = getRemoveHabitsControllerHandleMutationFetcher(uuid, axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RemoveHabitsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeHabitsControllerHandle>>>
-    
-    export type RemoveHabitsControllerHandleMutationError = AxiosError<IError>
-
-    export const useRemoveHabitsControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, TError,{uuid: string}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof removeHabitsControllerHandle>>,
-        TError,
-        {uuid: string},
-        TContext
-      > => {
-
-      const mutationOptions = getRemoveHabitsControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const registerUserControllerHandle = (
     inputRegisterUser: InputRegisterUser, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
-    
-    
     return axios.post(
       `http://localhost:8000/register`,
       inputRegisterUser,options
@@ -368,54 +285,36 @@ export const registerUserControllerHandle = (
 
 
 
-export const getRegisterUserControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerUserControllerHandle>>, TError,{data: InputRegisterUser}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof registerUserControllerHandle>>, TError,{data: InputRegisterUser}, TContext> => {
-    
-const mutationKey = ['registerUserControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getRegisterUserControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputRegisterUser }): Promise<AxiosResponse<void>> => {
+    return registerUserControllerHandle(arg, options);
+  }
+}
+export const getRegisterUserControllerHandleMutationKey = () => [`http://localhost:8000/register`] as const;
 
-      
+export type RegisterUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof registerUserControllerHandle>>>
+export type RegisterUserControllerHandleMutationError = AxiosError<IError>
 
+export const useRegisterUserControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof registerUserControllerHandle>>, TError, Key, InputRegisterUser, Awaited<ReturnType<typeof registerUserControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerUserControllerHandle>>, {data: InputRegisterUser}> = (props) => {
-          const {data} = props ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-          return  registerUserControllerHandle(data,axiosOptions)
-        }
+  const swrKey = swrOptions?.swrKey ?? getRegisterUserControllerHandleMutationKey();
+  const swrFn = getRegisterUserControllerHandleMutationFetcher(axiosOptions);
 
-        
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RegisterUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof registerUserControllerHandle>>>
-    export type RegisterUserControllerHandleMutationBody = InputRegisterUser
-    export type RegisterUserControllerHandleMutationError = AxiosError<IError>
-
-    export const useRegisterUserControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerUserControllerHandle>>, TError,{data: InputRegisterUser}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof registerUserControllerHandle>>,
-        TError,
-        {data: InputRegisterUser},
-        TContext
-      > => {
-
-      const mutationOptions = getRegisterUserControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    
 export const authenticateUserControllerHandle = (
     inputAuthenticateUser: InputAuthenticateUser, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
-    
-    
     return axios.post(
       `http://localhost:8000/login`,
       inputAuthenticateUser,options
@@ -424,51 +323,69 @@ export const authenticateUserControllerHandle = (
 
 
 
-export const getAuthenticateUserControllerHandleMutationOptions = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, TError,{data: InputAuthenticateUser}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, TError,{data: InputAuthenticateUser}, TContext> => {
-    
-const mutationKey = ['authenticateUserControllerHandle'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
+export const getAuthenticateUserControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputAuthenticateUser }): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
+    return authenticateUserControllerHandle(arg, options);
+  }
+}
+export const getAuthenticateUserControllerHandleMutationKey = () => [`http://localhost:8000/login`] as const;
 
-      
+export type AuthenticateUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof authenticateUserControllerHandle>>>
+export type AuthenticateUserControllerHandleMutationError = AxiosError<IError>
+
+export const useAuthenticateUserControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, TError, Key, InputAuthenticateUser, Awaited<ReturnType<typeof authenticateUserControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
+
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getAuthenticateUserControllerHandleMutationKey();
+  const swrFn = getAuthenticateUserControllerHandleMutationFetcher(axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
+
+export const getAllTagsControllerHandle = (
+    userUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllTagsDTO[]>> => {
+    return axios.get(
+      `http://localhost:8000/tags/${userUuid}`,options
+    );
+  }
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, {data: InputAuthenticateUser}> = (props) => {
-          const {data} = props ?? {};
 
-          return  authenticateUserControllerHandle(data,axiosOptions)
-        }
+export const getGetAllTagsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/tags/${userUuid}`] as const;
 
-        
+export type GetAllTagsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllTagsControllerHandle>>>
+export type GetAllTagsControllerHandleQueryError = AxiosError<IError>
 
+export const useGetAllTagsControllerHandle = <TError = AxiosError<IError>>(
+  userUuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllTagsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
+) => {
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  return  { mutationFn, ...mutationOptions }}
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllTagsControllerHandleKey(userUuid) : null);
+  const swrFn = () => getAllTagsControllerHandle(userUuid, axiosOptions)
 
-    export type AuthenticateUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof authenticateUserControllerHandle>>>
-    export type AuthenticateUserControllerHandleMutationBody = InputAuthenticateUser
-    export type AuthenticateUserControllerHandleMutationError = AxiosError<IError>
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
-    export const useAuthenticateUserControllerHandle = <TError = AxiosError<IError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, TError,{data: InputAuthenticateUser}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationResult<
-        Awaited<ReturnType<typeof authenticateUserControllerHandle>>,
-        TError,
-        {data: InputAuthenticateUser},
-        TContext
-      > => {
-
-      const mutationOptions = getAuthenticateUserControllerHandleMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
+  return {
+    swrKey,
+    ...query
+  }
+}
 
 
 export const getAuthenticateUserControllerHandleResponseMock = (overrideResponse: Partial< AuthenticateUserControllerHandle201 > = {}): AuthenticateUserControllerHandle201 => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
+
+export const getGetAllTagsControllerHandleResponseMock = (): OutputGetAllTagsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20)})))
 
 
 export const getCreateTagsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
@@ -542,6 +459,18 @@ export const getAuthenticateUserControllerHandleMockHandler = (overrideResponse?
       })
   })
 }
+
+export const getGetAllTagsControllerHandleMockHandler = (overrideResponse?: OutputGetAllTagsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllTagsDTO[]> | OutputGetAllTagsDTO[])) => {
+  return http.get('*/tags/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllTagsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
 export const getExampleTitleMock = () => [
   getCreateTagsControllerHandleMockHandler(),
   getRemoveTagsControllerHandleMockHandler(),
@@ -549,5 +478,6 @@ export const getExampleTitleMock = () => [
   getUpdateHabitControllerHandleMockHandler(),
   getRemoveHabitsControllerHandleMockHandler(),
   getRegisterUserControllerHandleMockHandler(),
-  getAuthenticateUserControllerHandleMockHandler()
+  getAuthenticateUserControllerHandleMockHandler(),
+  getGetAllTagsControllerHandleMockHandler()
 ]

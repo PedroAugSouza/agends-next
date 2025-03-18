@@ -6,7 +6,8 @@ export const getSession = () => {
   const userDecoded =
     (jwtDecode(getCookie('token')?.toString() || '') as User) || null;
 
-  console.log(userDecoded);
-
-  return userDecoded;
+  return {
+    ...userDecoded,
+    token: getCookie('token'),
+  };
 };

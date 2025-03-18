@@ -7,15 +7,85 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
+import { Button } from '@/shared/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
-import { ChevronDown, Inbox, Plus } from 'lucide-react';
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from '@/shared/components/ui/toggle-group';
+import {
+  createTagsControllerHandle,
+  removeTagsControllerHandle,
+  useGetAllTagsControllerHandle,
+  useRemoveTagsControllerHandle,
+} from '@/shared/http/http';
+import { addTagSchema } from '@/shared/schemas/add-tag.schcema';
+import { getSession } from '@/shared/utils/get-session';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AccordionHeader } from '@radix-ui/react-accordion';
+import {
+  ChevronDown,
+  ChevronRight,
+  CircleEllipsis,
+  Inbox,
+  Minus,
+  Plus,
+} from 'lucide-react';
+import { useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import colors from 'tailwindcss/colors';
+import { z } from 'zod';
+
+type FormTagType = z.infer<typeof addTagSchema>;
 
 export const HomeModule = () => {
+  const user = getSession();
+
+  const { register, control, handleSubmit, watch } = useForm<FormTagType>({
+    resolver: zodResolver(addTagSchema),
+    defaultValues: {
+      color: '#7C3AED',
+    },
+  });
+
+  const colorsTag = [
+    '#6B7280',
+    '#EF4444',
+    '#F97316',
+    '#EAB308',
+    '#84CC16',
+    '#10B981',
+    '#06B6D4',
+    '#3B82F6',
+    '#7C3AED',
+  ];
+
+  const [toggleAddTag, setToggleAddTag] = useState(false);
+
+  const { data, mutate } = useGetAllTagsControllerHandle(user.uuid);
+
+  const onSubmit: SubmitHandler<FormTagType> = (data) => {
+    createTagsControllerHandle(
+      {
+        name: data.name,
+        color: data.color,
+        userUuid: user.uuid,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
+    ).then(() => {
+      setToggleAddTag(false);
+      mutate();
+    });
+  };
+
   return (
     <main className="flex h-screen flex-col items-center justify-center">
       <nav className="flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
@@ -53,36 +123,137 @@ export const HomeModule = () => {
         <div className="flex h-full w-80 items-start justify-start border-r border-gray-200 bg-gray-100 px-6 py-2.5">
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger className="group w-full items-center justify-between [&>svg]:hidden">
-                <h1 className="text-base font-semibold text-gray-700">
+              <AccordionHeader className="flex flex-row items-center justify-between">
+                <span className="text-base font-semibold text-gray-700">
                   Minha agenda
-                </h1>
+                </span>
                 <div className="flex items-center gap-1 text-gray-500">
-                  <Plus size={22} />
-                  <ChevronDown
-                    size={22}
-                    className="transition-all group-data-[state=open]:rotate-180"
-                  />
+                  <button
+                    onClick={() => setToggleAddTag(!toggleAddTag)}
+                    className="cursor-pointer"
+                  >
+                    {toggleAddTag ? <Minus size={22} /> : <Plus size={22} />}
+                  </button>
+
+                  <AccordionTrigger className="group w-full cursor-pointer items-center justify-between">
+                    <ChevronDown
+                      size={22}
+                      className="transition-all group-data-[state=open]:rotate-180"
+                    />
+                  </AccordionTrigger>
                 </div>
-              </AccordionTrigger>
+              </AccordionHeader>
               <AccordionContent>
-                Yes. It adheres to the WAI-ARIA design pattern.
+                {data?.data.map((tag) => (
+                  <Popover key={tag.uuid}>
+                    <PopoverTrigger className="group flex w-full cursor-pointer items-center justify-between rounded px-2 py-1 hover:bg-white">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className="size-3 rounded-full"
+                          style={{ backgroundColor: tag.color }}
+                        />
+                        <span className="text-sm font-normal text-gray-700">
+                          {tag.name}
+                        </span>
+                      </div>
+                      <CircleEllipsis
+                        size={20}
+                        strokeWidth={1.5}
+                        color={colors.gray[600]}
+                        className="hidden group-hover:flex"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="right"
+                      className="flex w-fit flex-col items-start justify-start gap-2.5 p-1"
+                    >
+                      <Button
+                        size="sm"
+                        className="cursor-pointer rounded bg-gray-50 text-zinc-700 hover:bg-gray-100"
+                        onClick={() =>
+                          removeTagsControllerHandle(tag.uuid, {
+                            headers: {
+                              Authorization: `Bearer ${user.token}`,
+                            },
+                          }).then(() => {
+                            mutate();
+                          })
+                        }
+                      >
+                        Excluir
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
+                ))}
               </AccordionContent>
             </AccordionItem>
-
-            <AccordionItem value="item-2">
-              <AccordionTrigger className="group w-full items-center justify-between [&>svg]:hidden">
-                <h1 className="text-base font-semibold text-gray-700">
-                  Minha agenda
-                </h1>
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Plus size={22} />
-                  <ChevronDown
-                    size={22}
-                    className="transition-all group-data-[state=open]:rotate-180"
+            {toggleAddTag && (
+              <form
+                className="mt-2.5 flex w-full flex-col items-start justify-start gap-2.5 rounded-md border border-gray-200 bg-white px-1 py-3"
+                onSubmit={handleSubmit(onSubmit)}
+              >
+                <div className="flex w-full items-center justify-between gap-2.5 border-b border-gray-300 px-2.5 pt-0 pb-1">
+                  <input
+                    type="text"
+                    className="border-none bg-none outline-none"
+                    placeholder="Nome..."
+                    {...register('name')}
                   />
+                  <button
+                    className="grid size-5 cursor-pointer place-items-center rounded-sm text-white"
+                    type="submit"
+                    style={{
+                      backgroundColor: watch('color'),
+                    }}
+                  >
+                    <ChevronRight size={16} strokeWidth={2.5} />
+                  </button>
                 </div>
-              </AccordionTrigger>
+
+                <Controller
+                  control={control}
+                  name="color"
+                  render={({ field }) => (
+                    <ToggleGroup
+                      type="single"
+                      onValueChange={(value) => field.onChange(value)}
+                      value={field.value}
+                      defaultValue={field.value}
+                      className="flex w-full items-center justify-center gap-2.5 px-2"
+                    >
+                      {colorsTag.map((color, index) => (
+                        <ToggleGroupItem
+                          value={color}
+                          key={index}
+                          type="button"
+                          className="size-[18px] rounded-full border border-gray-200 transition-all hover:border-gray-400"
+                          size="sm"
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </ToggleGroup>
+                  )}
+                />
+              </form>
+            )}
+            <AccordionItem value="item-2">
+              <AccordionHeader className="flex flex-row items-center justify-between">
+                <span className="text-base font-semibold text-gray-700">
+                  Meus hábitos
+                </span>
+                <div className="flex items-center gap-1 text-gray-500">
+                  <button>
+                    <Plus size={22} />
+                  </button>
+
+                  <AccordionTrigger className="group w-full cursor-pointer items-center justify-between">
+                    <ChevronDown
+                      size={22}
+                      className="transition-all group-data-[state=open]:rotate-180"
+                    />
+                  </AccordionTrigger>
+                </div>
+              </AccordionHeader>
               <AccordionContent>
                 Yes. It adheres to the WAI-ARIA design pattern.
               </AccordionContent>

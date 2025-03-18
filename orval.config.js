@@ -4,7 +4,7 @@ module.exports = {
     output: {
       mode: 'tag-split',
       target: './src/shared/http/http.ts',
-      client: 'react-query',
+      client: 'swr',
       baseUrl: 'http://localhost:8000',
       mock: true,
     },
