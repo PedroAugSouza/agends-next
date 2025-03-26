@@ -45,7 +45,7 @@
             "bearer": []
           }
         ],
-        "tags": ["Create Tag Controller"]
+        "tags": ["Create Tag"]
       }
     },
     "/tag/{uuid}": {
@@ -91,7 +91,7 @@
             "bearer": []
           }
         ],
-        "tags": ["Remove Tags Controller"]
+        "tags": ["Remove Tags"]
       }
     },
     "/habit": {
@@ -138,7 +138,7 @@
             "bearer": []
           }
         ],
-        "tags": ["Create Habit Controller"]
+        "tags": ["Create Habit"]
       },
       "patch": {
         "operationId": "UpdateHabitController_handle",
@@ -183,7 +183,7 @@
             "bearer": []
           }
         ],
-        "tags": ["Update Habit Controller"]
+        "tags": ["Update Habit"]
       }
     },
     "/habit/{uuid}": {
@@ -229,7 +229,58 @@
             "bearer": []
           }
         ],
-        "tags": ["Remove Habit Controller"]
+        "tags": ["Remove Habit"]
+      },
+      "get": {
+        "operationId": "GetHabitByUuidController_handle",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Habit finded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutputGetHabitByUuidDTO"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Get Habit By Uuid"]
       }
     },
     "/register": {
@@ -348,7 +399,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/OutputGetAllTagsDTO"
+                    "$ref": "#/components/schemas/Output Get All Tags"
                   }
                 }
               }
@@ -381,6 +432,57 @@
           }
         ],
         "tags": ["Get All Tags Controller"]
+      }
+    },
+    "/habit/{userUuid}": {
+      "get": {
+        "operationId": "GetAllHabitsController_handle",
+        "parameters": [
+          {
+            "name": "userUuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Habit finded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutputGetAllHabitsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["GetAllHabits"]
       }
     }
   },
@@ -501,7 +603,7 @@
         },
         "required": ["email", "password"]
       },
-      "OutputGetAllTagsDTO": {
+      "Output Get All Tags": {
         "type": "object",
         "properties": {
           "uuid": {
@@ -515,6 +617,45 @@
           }
         },
         "required": ["uuid", "name", "color"]
+      },
+      "OutputGetAllHabitsDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "userUuid": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "color", "userUuid"]
+      },
+      "OutputGetHabitByUuidDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "uuid": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "userUuid": {
+            "type": "string"
+          },
+          "dayHabit": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "uuid", "color", "userUuid", "dayHabit"]
       }
     }
   }

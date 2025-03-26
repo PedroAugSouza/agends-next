@@ -76,10 +76,24 @@ export interface InputAuthenticateUser {
   password: string;
 }
 
-export interface OutputGetAllTagsDTO {
+export interface OutputGetAllTags {
   uuid: string;
   name: string;
   color: string;
+}
+
+export interface OutputGetAllHabitsDTO {
+  name: string;
+  color: string;
+  userUuid: string;
+}
+
+export interface OutputGetHabitByUuidDTO {
+  name: string;
+  uuid: string;
+  color: string;
+  userUuid: string;
+  dayHabit: string[];
 }
 
 export type AuthenticateUserControllerHandle201 = {
@@ -274,6 +288,38 @@ export const useRemoveHabitsControllerHandle = <TError = AxiosError<IError>>(
   }
 }
 
+export const getHabitByUuidControllerHandle = (
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetHabitByUuidDTO>> => {
+    return axios.get(
+      `http://localhost:8000/habit/${uuid}`,options
+    );
+  }
+
+
+
+export const getGetHabitByUuidControllerHandleKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
+
+export type GetHabitByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>>
+export type GetHabitByUuidControllerHandleQueryError = AxiosError<IError>
+
+export const useGetHabitByUuidControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
+) => {
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const isEnabled = swrOptions?.enabled !== false && !!(uuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetHabitByUuidControllerHandleKey(uuid) : null);
+  const swrFn = () => getHabitByUuidControllerHandle(uuid, axiosOptions)
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
+
 export const registerUserControllerHandle = (
     inputRegisterUser: InputRegisterUser, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
@@ -352,7 +398,7 @@ export const useAuthenticateUserControllerHandle = <TError = AxiosError<IError>>
 
 export const getAllTagsControllerHandle = (
     userUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<OutputGetAllTagsDTO[]>> => {
+ ): Promise<AxiosResponse<OutputGetAllTags[]>> => {
     return axios.get(
       `http://localhost:8000/tags/${userUuid}`,options
     );
@@ -382,10 +428,46 @@ export const useGetAllTagsControllerHandle = <TError = AxiosError<IError>>(
   }
 }
 
+export const getAllHabitsControllerHandle = (
+    userUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllHabitsDTO[]>> => {
+    return axios.get(
+      `http://localhost:8000/habit/${userUuid}`,options
+    );
+  }
+
+
+
+export const getGetAllHabitsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/habit/${userUuid}`] as const;
+
+export type GetAllHabitsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllHabitsControllerHandle>>>
+export type GetAllHabitsControllerHandleQueryError = AxiosError<IError>
+
+export const useGetAllHabitsControllerHandle = <TError = AxiosError<IError>>(
+  userUuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllHabitsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
+) => {
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllHabitsControllerHandleKey(userUuid) : null);
+  const swrFn = () => getAllHabitsControllerHandle(userUuid, axiosOptions)
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
+
+
+export const getGetHabitByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetHabitByUuidDTO > = {}): OutputGetHabitByUuidDTO => ({name: faker.string.alpha(20), uuid: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), dayHabit: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20))), ...overrideResponse})
 
 export const getAuthenticateUserControllerHandleResponseMock = (overrideResponse: Partial< AuthenticateUserControllerHandle201 > = {}): AuthenticateUserControllerHandle201 => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
 
-export const getGetAllTagsControllerHandleResponseMock = (): OutputGetAllTagsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20)})))
+export const getGetAllTagsControllerHandleResponseMock = (): OutputGetAllTags[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20)})))
+
+export const getGetAllHabitsControllerHandleResponseMock = (): OutputGetAllHabitsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20)})))
 
 
 export const getCreateTagsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
@@ -438,6 +520,18 @@ export const getRemoveHabitsControllerHandleMockHandler = (overrideResponse?: vo
   })
 }
 
+export const getGetHabitByUuidControllerHandleMockHandler = (overrideResponse?: OutputGetHabitByUuidDTO | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetHabitByUuidDTO> | OutputGetHabitByUuidDTO)) => {
+  return http.get('*/habit/:uuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetHabitByUuidControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
 export const getRegisterUserControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
   return http.post('*/register', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
@@ -460,12 +554,24 @@ export const getAuthenticateUserControllerHandleMockHandler = (overrideResponse?
   })
 }
 
-export const getGetAllTagsControllerHandleMockHandler = (overrideResponse?: OutputGetAllTagsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllTagsDTO[]> | OutputGetAllTagsDTO[])) => {
+export const getGetAllTagsControllerHandleMockHandler = (overrideResponse?: OutputGetAllTags[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllTags[]> | OutputGetAllTags[])) => {
   return http.get('*/tags/:userUuid', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
             : getGetAllTagsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetAllHabitsControllerHandleMockHandler = (overrideResponse?: OutputGetAllHabitsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllHabitsDTO[]> | OutputGetAllHabitsDTO[])) => {
+  return http.get('*/habit/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllHabitsControllerHandleResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
@@ -477,7 +583,9 @@ export const getExampleTitleMock = () => [
   getCreateHabitControllerHandleMockHandler(),
   getUpdateHabitControllerHandleMockHandler(),
   getRemoveHabitsControllerHandleMockHandler(),
+  getGetHabitByUuidControllerHandleMockHandler(),
   getRegisterUserControllerHandleMockHandler(),
   getAuthenticateUserControllerHandleMockHandler(),
-  getGetAllTagsControllerHandleMockHandler()
+  getGetAllTagsControllerHandleMockHandler(),
+  getGetAllHabitsControllerHandleMockHandler()
 ]

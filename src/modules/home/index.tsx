@@ -13,20 +13,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
+
 import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from '@/shared/components/ui/toggle-group';
-import {
-  createTagsControllerHandle,
   removeTagsControllerHandle,
+  useGetAllHabitsControllerHandle,
   useGetAllTagsControllerHandle,
-  useRemoveTagsControllerHandle,
 } from '@/shared/http/http';
-import { addTagSchema } from '@/shared/schemas/add-tag.schcema';
+
 import { getSession } from '@/shared/utils/get-session';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import { AccordionHeader } from '@radix-ui/react-accordion';
+import { PopoverArrow } from '@radix-ui/react-popover';
 import {
   ChevronDown,
   ChevronRight,
@@ -36,55 +33,36 @@ import {
   Plus,
 } from 'lucide-react';
 import { useState } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import colors from 'tailwindcss/colors';
-import { z } from 'zod';
 
-type FormTagType = z.infer<typeof addTagSchema>;
+import colors from 'tailwindcss/colors';
+
+import { TagForm } from './components/tag-form';
 
 export const HomeModule = () => {
   const user = getSession();
 
-  const { register, control, handleSubmit, watch } = useForm<FormTagType>({
-    resolver: zodResolver(addTagSchema),
-    defaultValues: {
-      color: '#7C3AED',
-    },
-  });
-
-  const colorsTag = [
-    '#6B7280',
-    '#EF4444',
-    '#F97316',
-    '#EAB308',
-    '#84CC16',
-    '#10B981',
-    '#06B6D4',
-    '#3B82F6',
-    '#7C3AED',
-  ];
-
   const [toggleAddTag, setToggleAddTag] = useState(false);
+  const [toggleAddHabit, setToggleAddHabit] = useState(false);
 
-  const { data, mutate } = useGetAllTagsControllerHandle(user.uuid);
-
-  const onSubmit: SubmitHandler<FormTagType> = (data) => {
-    createTagsControllerHandle(
-      {
-        name: data.name,
-        color: data.color,
-        userUuid: user.uuid,
-      },
-      {
+  const { data: tags, mutate: mutateTags } = useGetAllTagsControllerHandle(
+    user.uuid,
+    {
+      axios: {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       },
-    ).then(() => {
-      setToggleAddTag(false);
-      mutate();
+    },
+  );
+
+  const { data: habits, mutate: mutateHabits } =
+    useGetAllHabitsControllerHandle(user.uuid, {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
     });
-  };
 
   return (
     <main className="flex h-screen flex-col items-center justify-center">
@@ -121,7 +99,11 @@ export const HomeModule = () => {
       </nav>
       <div className="flex h-full w-full flex-row items-center justify-center">
         <div className="flex h-full w-80 items-start justify-start border-r border-gray-200 bg-gray-100 px-6 py-2.5">
-          <Accordion type="multiple" className="w-full">
+          <Accordion
+            type="multiple"
+            className="w-full"
+            defaultValue={['item-1', 'item-2']}
+          >
             <AccordionItem value="item-1">
               <AccordionHeader className="flex flex-row items-center justify-between">
                 <span className="text-base font-semibold text-gray-700">
@@ -143,10 +125,10 @@ export const HomeModule = () => {
                   </AccordionTrigger>
                 </div>
               </AccordionHeader>
-              <AccordionContent>
-                {data?.data.map((tag) => (
+              <AccordionContent className="flex flex-col items-center gap-1">
+                {tags?.data.map((tag) => (
                   <Popover key={tag.uuid}>
-                    <PopoverTrigger className="group flex w-full cursor-pointer items-center justify-between rounded px-2 py-1 hover:bg-white">
+                    <PopoverTrigger className="group flex w-full cursor-pointer items-center justify-between rounded border border-transparent px-2 py-1 hover:bg-white data-[state=open]:border-gray-200 data-[state=open]:bg-white">
                       <div className="flex items-center gap-2.5">
                         <div
                           className="size-3 rounded-full"
@@ -160,13 +142,14 @@ export const HomeModule = () => {
                         size={20}
                         strokeWidth={1.5}
                         color={colors.gray[600]}
-                        className="hidden group-hover:flex"
+                        className="hidden group-hover:flex group-data-[state=open]:flex"
                       />
                     </PopoverTrigger>
                     <PopoverContent
                       side="right"
                       className="flex w-fit flex-col items-start justify-start gap-2.5 p-1"
                     >
+                      <PopoverArrow className="fill-white" />
                       <Button
                         size="sm"
                         className="cursor-pointer rounded bg-gray-50 text-zinc-700 hover:bg-gray-100"
@@ -176,7 +159,7 @@ export const HomeModule = () => {
                               Authorization: `Bearer ${user.token}`,
                             },
                           }).then(() => {
-                            mutate();
+                            mutateHabits();
                           })
                         }
                       >
@@ -188,55 +171,12 @@ export const HomeModule = () => {
               </AccordionContent>
             </AccordionItem>
             {toggleAddTag && (
-              <form
-                className="mt-2.5 flex w-full flex-col items-start justify-start gap-2.5 rounded-md border border-gray-200 bg-white px-1 py-3"
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <div className="flex w-full items-center justify-between gap-2.5 border-b border-gray-300 px-2.5 pt-0 pb-1">
-                  <input
-                    type="text"
-                    className="border-none bg-none outline-none"
-                    placeholder="Nome..."
-                    {...register('name')}
-                  />
-                  <button
-                    className="grid size-5 cursor-pointer place-items-center rounded-sm text-white"
-                    type="submit"
-                    style={{
-                      backgroundColor: watch('color'),
-                    }}
-                  >
-                    <ChevronRight size={16} strokeWidth={2.5} />
-                  </button>
-                </div>
-
-                <Controller
-                  control={control}
-                  name="color"
-                  render={({ field }) => (
-                    <ToggleGroup
-                      type="single"
-                      onValueChange={(value) => field.onChange(value)}
-                      value={field.value}
-                      defaultValue={field.value}
-                      className="flex w-full items-center justify-center gap-2.5 px-2"
-                    >
-                      {colorsTag.map((color, index) => (
-                        <ToggleGroupItem
-                          value={color}
-                          key={index}
-                          type="button"
-                          className="size-[18px] rounded-full border border-gray-200 transition-all hover:border-gray-400"
-                          size="sm"
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </ToggleGroup>
-                  )}
-                />
-              </form>
+              <TagForm
+                mutateTags={mutateTags}
+                setToggleAddTag={setToggleAddTag}
+              />
             )}
-            <AccordionItem value="item-2">
+            {/* <AccordionItem value="item-2">
               <AccordionHeader className="flex flex-row items-center justify-between">
                 <span className="text-base font-semibold text-gray-700">
                   Meus hábitos
@@ -257,7 +197,7 @@ export const HomeModule = () => {
               <AccordionContent>
                 Yes. It adheres to the WAI-ARIA design pattern.
               </AccordionContent>
-            </AccordionItem>
+            </AccordionItem> */}
           </Accordion>
         </div>
         <div className="flex-1"></div>
