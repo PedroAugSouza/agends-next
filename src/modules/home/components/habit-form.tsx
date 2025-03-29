@@ -1,4 +1,4 @@
-import { ToggleGroup } from '@/shared/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem } from '@/shared/components/ui/toggle-group';
 import { addHabitSchema } from '@/shared/schemas/add-habit.schema';
 import { getSession } from '@/shared/utils/get-session';
 import { zodResolver } from '@hookform/resolvers/zod';

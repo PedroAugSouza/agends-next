@@ -252,7 +252,7 @@ export const RegisterModule = () => {
                               'bg-violet-600 text-white hover:bg-violet-500 hover:text-white',
                             cell: 'size-10',
                             head_cell: 'w-10 font-normal',
-                            nav_button: 'disable opacity-0 pointer-events-none',
+                            nav: 'hidden',
                           }}
                           month={field.value}
                           onSelect={(value) => field.onChange(value)}

@@ -17,6 +17,10 @@
   height: 54px;
 }
 
+.classe  {
+  
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

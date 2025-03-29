@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
-import { Button } from '@/shared/components/ui/button';
+import { Button, buttonVariants } from '@/shared/components/ui/button';
 import {
   Popover,
   PopoverContent,
@@ -26,8 +26,11 @@ import { AccordionHeader } from '@radix-ui/react-accordion';
 import { PopoverArrow } from '@radix-ui/react-popover';
 import {
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
+  ChevronsUpDown,
   CircleEllipsis,
+  CirclePlus,
   Inbox,
   Minus,
   Plus,
@@ -37,9 +40,69 @@ import { useState } from 'react';
 import colors from 'tailwindcss/colors';
 
 import { TagForm } from './components/tag-form';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
+import { Calendar } from '@/shared/components/ui/calendar';
+import { cn } from '@/shared/lib/utils';
+import { ptBR } from 'date-fns/locale';
+import { Day } from './components/day';
+import { getMonth } from '@/shared/utils/getMonth';
+import { setMonth, setYear } from 'date-fns';
 
 export const HomeModule = () => {
+  const months = [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
+  ];
+
   const user = getSession();
+
+  const [date, setDate] = useState<Date>(new Date());
+
+  const handleMonthChange = (month: string) => {
+    const newDate = setMonth(date, months.indexOf(month));
+    setDate(newDate);
+  };
+
+  const handleNextMonth = () => {
+    if (date.getMonth() === 11) {
+      const newDate = setMonth(date, 0);
+
+      setDate(setYear(newDate, newDate.getFullYear() + 1));
+
+      return;
+    }
+
+    const newDate = setMonth(date, date.getMonth() + 1);
+
+    setDate(newDate);
+  };
+  const handlePrevMonth = () => {
+    if (date.getMonth() === 0) {
+      const newDate = setMonth(date, 11);
+
+      setDate(setYear(newDate, newDate.getFullYear() - 1));
+
+      return;
+    }
+
+    const newDate = setMonth(date, date.getMonth() - 1);
+
+    setDate(newDate);
+  };
 
   const [toggleAddTag, setToggleAddTag] = useState(false);
   const [toggleAddHabit, setToggleAddHabit] = useState(false);
@@ -65,8 +128,8 @@ export const HomeModule = () => {
     });
 
   return (
-    <main className="flex h-screen flex-col items-center justify-center">
-      <nav className="flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
+    <main className="flex h-screen flex-col items-center justify-center overflow-hidden">
+      <nav className="z-10 flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
         <Brand />
 
         <div className="flex items-center gap-4">
@@ -190,7 +253,7 @@ export const HomeModule = () => {
                     <ChevronDown
                       size={22}
                       className="transition-all group-data-[state=open]:rotate-180"
-                    />
+                    />  
                   </AccordionTrigger>
                 </div>
               </AccordionHeader>
@@ -200,7 +263,90 @@ export const HomeModule = () => {
             </AccordionItem> */}
           </Accordion>
         </div>
-        <div className="flex-1"></div>
+        <div className="flex h-full flex-1 flex-col items-center pr-6 pb-2.5 pl-2.5">
+          <nav className="ites-center flex h-12 w-full justify-between border-b border-gray-200 p-2">
+            <div className="flex items-center gap-3">
+              <span className="w-40 text-xl font-medium text-gray-600">
+                <strong className="text-gray-800">
+                  {getMonth(date.getMonth())}
+                </strong>{' '}
+                {date.getFullYear()}
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  className="cursor-pointer text-violet-700"
+                  onClick={handlePrevMonth}
+                >
+                  <ChevronLeft size={22} strokeWidth={1.5} />
+                </button>
+                <button className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700">
+                  Hoje
+                </button>
+                <button
+                  className="cursor-pointer text-violet-700"
+                  onClick={handleNextMonth}
+                >
+                  <ChevronRight size={22} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Select>
+                <SelectTrigger
+                  className="h-8 w-32 border-gray-300 p-2.5 shadow-none data-[placeholder]:text-gray-600"
+                  icon={<ChevronsUpDown />}
+                >
+                  <SelectValue
+                    placeholder="Mês"
+                    className="text-gray-600 placeholder:text-gray-600"
+                  />
+                </SelectTrigger>
+              </Select>
+              <button>
+                <CirclePlus
+                  color={colors.gray[500]}
+                  strokeWidth={1.5}
+                  size={26}
+                />
+              </button>
+            </div>
+          </nav>
+          <div className="flex w-full grow items-center">
+            <Calendar
+              className="mt-2.5 h-full p-0 pt-2.5"
+              mode="single"
+              month={date}
+              // selected={date}
+              locale={ptBR}
+              showOutsideDays
+              fixedWeeks
+              classNames={{
+                nav: 'hidden',
+                caption: 'hidden',
+                month: 'w-full grow h-full',
+                root: 'w-full h-full',
+                table: 'w-full grow  h-full flex flex-col h-full',
+                tbody: 'flex flex-wrap grow justify-between ',
+                head: 'w-full',
+                head_row:
+                  ' w-full grid grid-cols-7 border-b pb-2.5 border-gray-200',
+                head_cell:
+                  'border-r last:border-none border-gray-200 text-gray-600 w-full items-start flex p-2.5 font-semibold capitalize',
+                cell: 'flex w-full items-center justify-between grow h-full',
+                day: cn(
+                  buttonVariants({ variant: 'ghost' }),
+                  'flex-1 h-full  p-0 font-normal aria-selected:opacity-100',
+                ),
+                months: ' h-full',
+              }}
+              components={{
+                Day: (props) => <Day {...props} />,
+              }}
+            />
+          </div>
+        </div>
       </div>
     </main>
   );
