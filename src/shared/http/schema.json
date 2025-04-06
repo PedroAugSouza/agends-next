@@ -283,6 +283,144 @@
         "tags": ["Get Habit By Uuid"]
       }
     },
+    "/event": {
+      "post": {
+        "operationId": "CreateEventController_handle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input Create Event"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created"
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Create Event"]
+      },
+      "patch": {
+        "operationId": "UpdateEventController_handle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Input Update Event"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event Updated"
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Update Event"]
+      }
+    },
+    "/event/{uuid}": {
+      "delete": {
+        "operationId": "RemoveEventsController_handle",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event Removed"
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Remove Event"]
+      }
+    },
     "/register": {
       "post": {
         "operationId": "RegisterUserController_handle",
@@ -571,6 +709,88 @@
           }
         },
         "required": ["uuid", "name", "color", "userUuid", "dayHabit"]
+      },
+      "Input Create Event": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "startsOf": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endsOf": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tagUuid": {
+            "type": "string"
+          },
+          "userUuid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "allDay",
+          "date",
+          "startsOf",
+          "endsOf",
+          "tagUuid",
+          "userUuid"
+        ]
+      },
+      "Input Update Event": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "allDay": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "startsOf": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "endsOf": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "tagUuid": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "uuid",
+          "name",
+          "allDay",
+          "date",
+          "startsOf",
+          "endsOf",
+          "tagUuid"
+        ]
       },
       "Input Register User": {
         "type": "object",

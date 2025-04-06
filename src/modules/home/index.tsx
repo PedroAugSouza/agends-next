@@ -39,7 +39,7 @@ import { useState } from 'react';
 
 import colors from 'tailwindcss/colors';
 
-import { TagForm } from './components/tag-form';
+import { TagForm } from './shared/components/tag-form';
 import {
   Select,
   SelectTrigger,
@@ -48,34 +48,26 @@ import {
 import { Calendar } from '@/shared/components/ui/calendar';
 import { cn } from '@/shared/lib/utils';
 import { ptBR } from 'date-fns/locale';
-import { Day } from './components/day';
+import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
 import { setMonth, setYear } from 'date-fns';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from '@/shared/components/ui/dialog';
+import { AddEventForm } from './shared/components/add-event-form';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 export const HomeModule = () => {
-  const months = [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ];
-
   const user = getSession();
 
   const [date, setDate] = useState<Date>(new Date());
 
-  const handleMonthChange = (month: string) => {
-    const newDate = setMonth(date, months.indexOf(month));
-    setDate(newDate);
-  };
+  const { signOut } = useAuth();
 
   const handleNextMonth = () => {
     if (date.getMonth() === 11) {
@@ -155,9 +147,19 @@ export const HomeModule = () => {
             </PopoverContent>
           </Popover>
 
-          <button className="size-9 rounded-full border border-gray-400">
-            F
-          </button>
+          <Popover>
+            <PopoverTrigger className="size-9 cursor-pointer rounded-full border border-gray-400">
+              F
+            </PopoverTrigger>
+            <PopoverContent className="mr-4 flex w-max flex-col items-start justify-start gap-2.5 p-1">
+              <button
+                className="flex w-24 cursor-pointer items-center justify-between gap-2.5 rounded px-2 hover:bg-gray-100"
+                onClick={() => signOut()}
+              >
+                <span>Sair</span>
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
       </nav>
       <div className="flex h-full w-full flex-row items-center justify-center">
@@ -265,7 +267,7 @@ export const HomeModule = () => {
         </div>
         <div className="flex h-full flex-1 flex-col items-center pr-6 pb-2.5 pl-2.5">
           <nav className="ites-center flex h-12 w-full justify-between border-b border-gray-200 p-2">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <span className="w-40 text-xl font-medium text-gray-600">
                 <strong className="text-gray-800">
                   {getMonth(date.getMonth())}
@@ -280,7 +282,10 @@ export const HomeModule = () => {
                 >
                   <ChevronLeft size={22} strokeWidth={1.5} />
                 </button>
-                <button className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700">
+                <button
+                  className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700"
+                  onClick={() => setDate(new Date())}
+                >
                   Hoje
                 </button>
                 <button
@@ -295,7 +300,7 @@ export const HomeModule = () => {
             <div className="flex items-center gap-4">
               <Select>
                 <SelectTrigger
-                  className="h-8 w-32 border-gray-300 p-2.5 shadow-none data-[placeholder]:text-gray-600"
+                  className="h-8 w-32 border-gray-300 p-2.5 shadow-none data-[placeholder]:text-gray-700"
                   icon={<ChevronsUpDown />}
                 >
                   <SelectValue
@@ -304,13 +309,25 @@ export const HomeModule = () => {
                   />
                 </SelectTrigger>
               </Select>
-              <button>
-                <CirclePlus
-                  color={colors.gray[500]}
-                  strokeWidth={1.5}
-                  size={26}
-                />
-              </button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="cursor-pointer">
+                    <CirclePlus
+                      color={colors.gray[500]}
+                      strokeWidth={1.5}
+                      size={26}
+                    />
+                  </button>
+                </DialogTrigger>
+                <DialogPortal>
+                  <DialogContent className="w-xs border border-gray-300 p-4">
+                    <DialogTitle className="font-normal text-gray-700">
+                      Novo evento
+                    </DialogTitle>
+                    <AddEventForm />
+                  </DialogContent>
+                </DialogPortal>
+              </Dialog>
             </div>
           </nav>
           <div className="flex w-full grow items-center">
@@ -318,9 +335,7 @@ export const HomeModule = () => {
               className="mt-2.5 h-full p-0 pt-2.5"
               mode="single"
               month={date}
-              // selected={date}
               locale={ptBR}
-              showOutsideDays
               fixedWeeks
               classNames={{
                 nav: 'hidden',

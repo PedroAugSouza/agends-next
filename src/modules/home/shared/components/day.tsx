@@ -11,6 +11,7 @@ interface Props {
 export const Day = ({ date, displayMonth }: Props) => {
   const today = new Date();
   const currentDate = setDate(today, date.getDate());
+
   return (
     <div
       className={cn(
@@ -23,9 +24,9 @@ export const Day = ({ date, displayMonth }: Props) => {
     >
       <span
         className={cn('flex w-9 items-center justify-between rounded px-1', {
-          'bg-violet-700 text-white':
+          'bg-violet-600 text-white':
             currentDate.getDate() === today.getDate() &&
-            displayMonth.getMonth() === today.getMonth() &&
+            date.getMonth() === today.getMonth() &&
             displayMonth.getFullYear() === today.getFullYear(),
         })}
       >

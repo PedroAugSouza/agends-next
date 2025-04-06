@@ -34,15 +34,16 @@ export const LoginModule = () => {
 
   return (
     <main className="grid h-screen place-items-center">
+      <div className="absolute mr-40 mb-48 size-64 rotate-[20deg] opacity-20 blur-lg">
+        <div className="absolute size-52 rounded-full bg-sky-300" />
+        <div className="absolute top-10 left-36 size-52 rounded-full bg-blue-300" />
+        <div className="absolute top-36 size-52 rounded-full bg-violet-300" />
+      </div>
+
       <form
         className="relative flex w-80 flex-col items-center justify-start gap-2.5"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="absolute right-28 -z-10 size-64 opacity-25 blur-lg">
-          <div className="absolute size-52 rounded-full bg-sky-300" />
-          <div className="absolute top-10 left-36 size-52 rounded-full bg-blue-300" />
-          <div className="absolute top-36 size-52 rounded-full bg-violet-300" />
-        </div>
         <h1 className="text-lg">
           Se planeje melhor com{' '}
           <span className={`${lilita.className} text-2xl text-violet-600`}>
