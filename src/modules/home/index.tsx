@@ -15,7 +15,9 @@ import {
 } from '@/shared/components/ui/popover';
 
 import {
+  OutputGetAllEventsDTO,
   removeTagsControllerHandle,
+  useGetAllEventsControllerHandle,
   useGetAllHabitsControllerHandle,
   useGetAllTagsControllerHandle,
 } from '@/shared/http/http';
@@ -50,7 +52,7 @@ import { cn } from '@/shared/lib/utils';
 import { ptBR } from 'date-fns/locale';
 import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
-import { setMonth, setYear } from 'date-fns';
+import { setMonth, setYear, setDate as setDateFNS } from 'date-fns';
 import {
   Dialog,
   DialogClose,
@@ -68,6 +70,27 @@ export const HomeModule = () => {
   const [date, setDate] = useState<Date>(new Date());
 
   const { signOut } = useAuth();
+
+  const { data } = useGetAllEventsControllerHandle(
+    user.uuid,
+    { date: date.toDateString() },
+    {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
+    },
+  );
+
+  const getEventsForDay = (currentDate: Date): OutputGetAllEventsDTO[] => {
+    const events = data?.data?.filter(
+      (event) =>
+        new Date(event.date).getDate() === currentDate.getDate() &&
+        new Date(event.date).getMonth() === currentDate.getMonth(),
+    );
+    return events ?? [];
+  };
 
   const handleNextMonth = () => {
     if (date.getMonth() === 11) {
@@ -357,7 +380,9 @@ export const HomeModule = () => {
                 months: ' h-full',
               }}
               components={{
-                Day: (props) => <Day {...props} />,
+                Day: (props) => (
+                  <Day {...props} events={getEventsForDay(props.date)} />
+                ),
               }}
             />
           </div>

@@ -620,7 +620,77 @@
             }
           }
         },
-        "tags": ["GetAllHabits"]
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Get All Habits"]
+      }
+    },
+    "/events/{userUuid}": {
+      "get": {
+        "operationId": "GetAllEventsController_handle",
+        "parameters": [
+          {
+            "name": "userUuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events finded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutputGetAllEventsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Get All Events"]
       }
     }
   },
@@ -725,11 +795,13 @@
           },
           "startsOf": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "endsOf": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "tagUuid": {
             "type": "string"
@@ -876,6 +948,69 @@
           }
         },
         "required": ["name", "uuid", "color", "userUuid", "dayHabit"]
+      },
+      "TagProps": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "userUuid": {
+            "type": "string"
+          },
+          "events": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["uuid", "name", "color", "userUuid", "events"]
+      },
+      "OutputGetAllEventsDTO": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "startsOf": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "endsOf": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tag": {
+            "$ref": "#/components/schemas/TagProps"
+          }
+        },
+        "required": [
+          "uuid",
+          "name",
+          "allDay",
+          "date",
+          "startsOf",
+          "endsOf",
+          "tag"
+        ]
       }
     }
   }

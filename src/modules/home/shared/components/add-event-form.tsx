@@ -96,6 +96,8 @@ export const AddEventForm = () => {
         allDay: data.allDay,
         tagUuid: tagSelected.uuid,
         userUuid: user?.uuid,
+        endsOf: null,
+        startsOf: null,
       },
       {
         headers: {

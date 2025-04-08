@@ -53,9 +53,9 @@ export interface InputCreateEvent {
   allDay: boolean;
   date: Date;
   /** @nullable */
-  startsOf?: Date | null;
+  startsOf: Date | null;
   /** @nullable */
-  endsOf?: Date | null;
+  endsOf: Date | null;
   tagUuid: string;
   userUuid: string;
 }
@@ -108,8 +108,31 @@ export interface OutputGetHabitByUuidDTO {
   dayHabit: string[];
 }
 
+export interface TagProps {
+  uuid: string;
+  name: string;
+  color: string;
+  userUuid: string;
+  /** @nullable */
+  events: string[] | null;
+}
+
+export interface OutputGetAllEventsDTO {
+  uuid: string;
+  name: string;
+  allDay: boolean;
+  date: string;
+  startsOf: string;
+  endsOf: string;
+  tag: TagProps;
+}
+
 export type AuthenticateUserControllerHandle201 = {
   access_token?: string;
+};
+
+export type GetAllEventsControllerHandleParams = {
+  date: string;
 };
 
 export const createTagsControllerHandle = (
@@ -772,6 +795,64 @@ export const useGetAllHabitsControllerHandle = <TError = AxiosError<IError>>(
   };
 };
 
+export const getAllEventsControllerHandle = (
+  userUuid: string,
+  params: GetAllEventsControllerHandleParams,
+  options?: AxiosRequestConfig,
+): Promise<AxiosResponse<OutputGetAllEventsDTO[]>> => {
+  return axios.get(`http://localhost:8000/events/${userUuid}`, {
+    ...options,
+    params: { ...params, ...options?.params },
+  });
+};
+
+export const getGetAllEventsControllerHandleKey = (
+  userUuid: string,
+  params: GetAllEventsControllerHandleParams,
+) =>
+  [
+    `http://localhost:8000/events/${userUuid}`,
+    ...(params ? [params] : []),
+  ] as const;
+
+export type GetAllEventsControllerHandleQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllEventsControllerHandle>>
+>;
+export type GetAllEventsControllerHandleQueryError = AxiosError<IError>;
+
+export const useGetAllEventsControllerHandle = <TError = AxiosError<IError>>(
+  userUuid: string,
+  params: GetAllEventsControllerHandleParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof getAllEventsControllerHandle>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    axios?: AxiosRequestConfig;
+  },
+) => {
+  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false && !!userUuid;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled ? getGetAllEventsControllerHandleKey(userUuid, params) : null);
+  const swrFn = () =>
+    getAllEventsControllerHandle(userUuid, params, axiosOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+
 export const getGetHabitByUuidControllerHandleResponseMock = (
   overrideResponse: Partial<OutputGetHabitByUuidDTO> = {},
 ): OutputGetHabitByUuidDTO => ({
@@ -813,6 +894,30 @@ export const getGetAllHabitsControllerHandleResponseMock =
       name: faker.string.alpha(20),
       color: faker.string.alpha(20),
       userUuid: faker.string.alpha(20),
+    }));
+
+export const getGetAllEventsControllerHandleResponseMock =
+  (): OutputGetAllEventsDTO[] =>
+    Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      uuid: faker.string.alpha(20),
+      name: faker.string.alpha(20),
+      allDay: faker.datatype.boolean(),
+      date: `${faker.date.past().toISOString().split('.')[0]}Z`,
+      startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
+      endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
+      tag: {
+        uuid: faker.string.alpha(20),
+        name: faker.string.alpha(20),
+        color: faker.string.alpha(20),
+        userUuid: faker.string.alpha(20),
+        events: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => faker.string.alpha(20)),
+      },
     }));
 
 export const getCreateTagsControllerHandleMockHandler = (
@@ -1052,6 +1157,29 @@ export const getGetAllHabitsControllerHandleMockHandler = (
     );
   });
 };
+
+export const getGetAllEventsControllerHandleMockHandler = (
+  overrideResponse?:
+    | OutputGetAllEventsDTO[]
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<OutputGetAllEventsDTO[]> | OutputGetAllEventsDTO[]),
+) => {
+  return http.get('*/events/:userUuid', async (info) => {
+    await delay(1000);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === 'function'
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetAllEventsControllerHandleResponseMock(),
+      ),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  });
+};
 export const getExampleTitleMock = () => [
   getCreateTagsControllerHandleMockHandler(),
   getRemoveTagsControllerHandleMockHandler(),
@@ -1066,4 +1194,5 @@ export const getExampleTitleMock = () => [
   getAuthenticateUserControllerHandleMockHandler(),
   getGetAllTagsControllerHandleMockHandler(),
   getGetAllHabitsControllerHandleMockHandler(),
+  getGetAllEventsControllerHandleMockHandler(),
 ];
