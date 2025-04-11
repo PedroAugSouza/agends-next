@@ -1,5 +1,12 @@
 'use client';
-import { AlarmClockCheck, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  AlarmClockCheck,
+  Calendar as CalendarIcon,
+  Check,
+  Plus,
+  User,
+  X,
+} from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -15,20 +22,28 @@ import {
 import { ChevronsUpDown } from 'lucide-react';
 import colors from 'tailwindcss/colors';
 import { Calendar } from '@/shared/components/common/custom-calendar';
-
-import { format, set, setHours, setMinutes } from 'date-fns';
+import { format, set, setDate, setHours, setMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Switch } from '@/shared/components/ui/switch';
-import { Button } from '@/shared/components/ui/button';
+import { Button, buttonVariants } from '@/shared/components/ui/button';
 import {
   createEventControllerHandle,
   useGetAllTagsControllerHandle,
 } from '@/shared/http/http';
 import { getSession } from '@/shared/utils/get-session';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { addEventSchema } from '@/shared/schemas/add-event.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { cn } from '@/shared/lib/utils';
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/shared/components/ui/command';
+import { useState } from 'react';
 
 type FormType = z.infer<typeof addEventSchema>;
 
@@ -47,7 +62,35 @@ export const AddEventForm = () => {
       },
     });
 
+  const { append, remove, fields } = useFieldArray({
+    control,
+    name: 'asssignedUsers',
+  });
+
   const user = getSession();
+
+  const [open, setOpen] = useState(false);
+
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const mails = [
+    {
+      value: '@gmail.com',
+      label: '@gmail.com',
+    },
+    {
+      value: '@hotmail.com',
+      label: '@hotmail.com',
+    },
+    {
+      value: '@yahoo.com',
+      label: '@yahoo.com',
+    },
+    {
+      value: '@icloud.com',
+      label: '@icloud.com',
+    },
+  ];
 
   const { data: tags } = useGetAllTagsControllerHandle(user?.uuid ?? '', {
     axios: {
@@ -78,6 +121,7 @@ export const AddEventForm = () => {
           endsOf: endsTime,
           tagUuid: tagSelected.uuid,
           userUuid: user?.uuid,
+          assignedUsers: data.asssignedUsers?.map((user) => user.user),
         },
         {
           headers: {
@@ -98,6 +142,7 @@ export const AddEventForm = () => {
         userUuid: user?.uuid,
         endsOf: null,
         startsOf: null,
+        assignedUsers: data.asssignedUsers?.map((user) => user.user),
       },
       {
         headers: {
@@ -159,6 +204,96 @@ export const AddEventForm = () => {
             </Select>
           )}
         />
+        <div className="flex w-full flex-col gap-2 text-gray-500">
+          <Popover open={open} onOpenChange={setOpen}>
+            {fields.length ? (
+              <div
+                aria-expanded={open}
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'relative h-max min-h-9 w-full cursor-pointer justify-between border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
+                )}
+              >
+                <PopoverTrigger className="pointer-events-none absolute inset-0 h-full w-full" />
+                <div className="flex flex-1 items-center gap-1">
+                  <User />
+                  <div className="flex flex-1 flex-wrap items-center gap-1 text-sm">
+                    {fields.map((value, index) => (
+                      <button
+                        key={value.id}
+                        onClick={() => {
+                          remove(index);
+                        }}
+                        className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
+                      >
+                        <span className="truncate">{value.user}</span>
+                        <X size={6} strokeWidth={1} />
+                      </button>
+                    ))}
+                    <button
+                      className="cursor-pointer rounded p-0.5 hover:bg-gray-100"
+                      onClick={() => setOpen(true)}
+                    >
+                      <Plus />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <PopoverTrigger asChild>
+                <div
+                  aria-expanded={open}
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'h-max min-h-9 w-full cursor-pointer items-center justify-start border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
+                  )}
+                >
+                  <User />
+                  <span>Adicionar pessoas</span>
+                </div>
+              </PopoverTrigger>
+            )}
+
+            <PopoverContent className="w-full p-0">
+              <Command className="w-full">
+                <CommandInput
+                  className="w-[calc(var(--container-3xs)-1.2rem)]"
+                  value={inputValue}
+                  onValueChange={setInputValue}
+                />
+                <CommandList>
+                  <CommandGroup>
+                    {!inputValue.includes('@') ? (
+                      mails.map((mail) => (
+                        <CommandItem
+                          key={mail.value}
+                          onSelect={() => {
+                            append({ user: inputValue + mail.value });
+                            setInputValue('');
+                            setOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          {inputValue + mail.value}
+                        </CommandItem>
+                      ))
+                    ) : (
+                      <CommandItem
+                        onSelect={() => {
+                          append({ user: inputValue });
+                          setOpen(false);
+                          setInputValue('');
+                        }}
+                      >
+                        {inputValue}
+                      </CommandItem>
+                    )}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
 
         <Popover>
           <PopoverTrigger className="flex h-9 w-full cursor-pointer items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1 text-gray-500">
@@ -182,7 +317,9 @@ export const AddEventForm = () => {
                     field.onChange(value);
                   }}
                   selected={field.value}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) =>
+                    date < setDate(new Date(), new Date().getDate() - 1)
+                  }
                 />
               )}
             />

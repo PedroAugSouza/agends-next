@@ -12,5 +12,6 @@ export const addEventSchema = z.object({
   endTimeMinutes: z.string().default('00').nullable(),
   startTimeHours: z.string().default('00').nullable(),
   endTimeHours: z.string().default('00').nullable(),
+  asssignedUsers: z.array(z.object({ user: z.string() })),
   tagUuid: z.string(),
 });

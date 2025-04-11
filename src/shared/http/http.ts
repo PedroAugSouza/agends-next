@@ -58,6 +58,8 @@ export interface InputCreateEvent {
   endsOf: Date | null;
   tagUuid: string;
   userUuid: string;
+  /** @nullable */
+  assignedUsers: string[] | null;
 }
 
 export interface InputUpdateEvent {

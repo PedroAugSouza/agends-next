@@ -645,7 +645,6 @@
             "required": true,
             "in": "query",
             "schema": {
-              "format": "date-time",
               "type": "string"
             }
           }
@@ -808,6 +807,13 @@
           },
           "userUuid": {
             "type": "string"
+          },
+          "assignedUsers": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -817,7 +823,8 @@
           "startsOf",
           "endsOf",
           "tagUuid",
-          "userUuid"
+          "userUuid",
+          "assignedUsers"
         ]
       },
       "Input Update Event": {

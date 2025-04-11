@@ -63,6 +63,12 @@ import {
 } from '@/shared/components/ui/dialog';
 import { AddEventForm } from './shared/components/add-event-form';
 import { useAuth } from '@/shared/hooks/useAuth';
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from '@/shared/components/ui/sheet';
 
 export const HomeModule = () => {
   const user = getSession();
@@ -332,8 +338,9 @@ export const HomeModule = () => {
                   />
                 </SelectTrigger>
               </Select>
-              <Dialog>
-                <DialogTrigger asChild>
+
+              <Sheet>
+                <SheetTrigger asChild>
                   <button className="cursor-pointer">
                     <CirclePlus
                       color={colors.gray[500]}
@@ -341,16 +348,15 @@ export const HomeModule = () => {
                       size={26}
                     />
                   </button>
-                </DialogTrigger>
-                <DialogPortal>
-                  <DialogContent className="w-xs border border-gray-300 p-4">
-                    <DialogTitle className="font-normal text-gray-700">
-                      Novo evento
-                    </DialogTitle>
-                    <AddEventForm />
-                  </DialogContent>
-                </DialogPortal>
-              </Dialog>
+                </SheetTrigger>
+
+                <SheetContent className="w-xs border border-gray-300 p-4">
+                  <SheetTitle className="font-normal text-gray-700">
+                    Novo evento
+                  </SheetTitle>
+                  <AddEventForm />
+                </SheetContent>
+              </Sheet>
             </div>
           </nav>
           <div className="flex w-full grow items-center">
