@@ -4,6 +4,7 @@ import '../shared/styles/globals.css';
 import { AuthProvider } from '@/shared/contexts/auth/auth.provider';
 import { DrawerCSSProvider } from '@/shared/providers/drawer-css.provider';
 import { QueryClientProvider } from '@/shared/providers/query.provider';
+import { CalendarProvider } from '@/shared/contexts/calendar/calendar.provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,7 +33,9 @@ export default function RootLayout({
       >
         <QueryClientProvider>
           <DrawerCSSProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <CalendarProvider>{children}</CalendarProvider>
+            </AuthProvider>
           </DrawerCSSProvider>
         </QueryClientProvider>
       </body>
