@@ -77,7 +77,7 @@ export const HomeModule = () => {
 
   const { signOut } = useAuth();
 
-  const { data } = useGetAllEventsControllerHandle(
+  const { data: events, mutate: refreshEvents } = useGetAllEventsControllerHandle(
     user.uuid,
     { date: date.toDateString() },
     {
@@ -90,12 +90,12 @@ export const HomeModule = () => {
   );
 
   const getEventsForDay = (currentDate: Date): OutputGetAllEventsDTO[] => {
-    const events = data?.data?.filter(
+    const eventsFiltered = events?.data?.filter(
       (event) =>
         new Date(event.date).getDate() === currentDate.getDate() &&
         new Date(event.date).getMonth() === currentDate.getMonth(),
     );
-    return events ?? [];
+    return eventsFiltered ?? [];
   };
 
   const handleNextMonth = () => {

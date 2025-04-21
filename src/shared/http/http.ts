@@ -119,6 +119,39 @@ export interface TagProps {
   events: string[] | null;
 }
 
+export interface PickTypeClass {
+  uuid: string;
+  name: string;
+  email: string;
+}
+
+/**
+ * @nullable
+ */
+export type OmitTypeClassTag = TagProps | null;
+
+export interface OmitTypeClass {
+  uuid: string;
+  name: string;
+  allDay: boolean;
+  date: string;
+  startsOf: string;
+  endsOf: string;
+  tagUuid: string;
+  /** @nullable */
+  Tag: OmitTypeClassTag;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssignedEventsToUsers {
+  uuid: string;
+  eventUuid: string;
+  userUuid: string;
+  user: PickTypeClass;
+  event: OmitTypeClass;
+}
+
 export interface OutputGetAllEventsDTO {
   uuid: string;
   name: string;
@@ -127,6 +160,7 @@ export interface OutputGetAllEventsDTO {
   startsOf: string;
   endsOf: string;
   tag: TagProps;
+  assignedEventToUsers: AssignedEventsToUsers[];
 }
 
 export type AuthenticateUserControllerHandle201 = {
@@ -920,6 +954,42 @@ export const getGetAllEventsControllerHandleResponseMock =
           (_, i) => i + 1,
         ).map(() => faker.string.alpha(20)),
       },
+      assignedEventToUsers: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => ({
+        uuid: faker.string.alpha(20),
+        eventUuid: faker.string.alpha(20),
+        userUuid: faker.string.alpha(20),
+        user: {
+          uuid: faker.string.alpha(20),
+          name: faker.string.alpha(20),
+          email: faker.string.alpha(20),
+        },
+        event: {
+          uuid: faker.string.alpha(20),
+          name: faker.string.alpha(20),
+          allDay: faker.datatype.boolean(),
+          date: `${faker.date.past().toISOString().split('.')[0]}Z`,
+          startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
+          endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
+          tagUuid: faker.string.alpha(20),
+          Tag: {
+            ...{
+              uuid: faker.string.alpha(20),
+              name: faker.string.alpha(20),
+              color: faker.string.alpha(20),
+              userUuid: faker.string.alpha(20),
+              events: Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+            },
+          },
+          createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`,
+          updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`,
+        },
+      })),
     }));
 
 export const getCreateTagsControllerHandleMockHandler = (

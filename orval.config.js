@@ -1,6 +1,6 @@
 module.exports = {
   'agends-file': {
-    input: './src/shared/http/schema.json',
+    input: './src/shared/http/schema.yaml',
     output: {
       mode: 'tag-split',
       target: './src/shared/http/http.ts',

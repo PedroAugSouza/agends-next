@@ -1,8 +1,14 @@
 'use client';
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/shared/components/ui/popover';
 import { OutputGetAllEventsDTO } from '@/shared/http/http';
 import { cn } from '@/shared/lib/utils';
-import { setDate, setYear } from 'date-fns';
+import { setYear } from 'date-fns';
+import { AddEventForm } from './add-event-form';
 
 interface Props {
   displayMonth: Date;
@@ -35,15 +41,22 @@ export const Day = ({ date, displayMonth, events }: Props) => {
       </span>
 
       <div className="flex w-full grow flex-col items-start justify-start gap-2 overflow-auto">
-        {events.map(({ tag, uuid, name }) => (
-          <div
-            className="flex h-5 w-full items-center gap-2 rounded-full px-1.5 text-white"
-            style={{ background: tag.color }}
-            key={uuid}
-          >
-            <div className="size-2.5 rounded-full bg-white" />
-            <span>{name}</span>
-          </div>
+        {events.map((event) => (
+          <Popover key={event.uuid}>
+            <PopoverTrigger
+              className="flex h-5 w-full cursor-pointer items-center gap-2 rounded-full px-1.5 text-white"
+              style={{ background: event.tag.color }}
+            >
+              <div className="size-2.5 rounded-full bg-white" />
+              <span>{event.name}</span>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-72 rounded-lg p-4 text-gray-700"
+              side="left"
+            >
+              <AddEventForm event={event} />
+            </PopoverContent>
+          </Popover>
         ))}
       </div>
     </div>

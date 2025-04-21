@@ -1,0 +1,775 @@
+openapi: 3.0.0
+paths:
+  /tag:
+    post:
+      operationId: CreateTagsController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Create Tag'
+      responses:
+        '201':
+          description: Tag created
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Create Tag
+  /tag/{uuid}:
+    delete:
+      operationId: RemoveTagsController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag removed
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Remove Tags
+  /habit:
+    post:
+      operationId: CreateHabitController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Create Habit'
+      responses:
+        '201':
+          description: Habit created
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Create Habit
+    patch:
+      operationId: UpdateHabitController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Update Habit'
+      responses:
+        '200':
+          description: Habit Updated
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Update Habit
+  /habit/{uuid}:
+    delete:
+      operationId: RemoveHabitsController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Habit Removed
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Remove Habit
+    get:
+      operationId: GetHabitByUuidController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Habit finded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputGetHabitByUuidDTO'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get Habit By Uuid
+  /event:
+    post:
+      operationId: CreateEventController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Create Event'
+      responses:
+        '201':
+          description: Event created
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Create Event
+    patch:
+      operationId: UpdateEventController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Update Event'
+      responses:
+        '200':
+          description: Event Updated
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Update Event
+  /event/{uuid}:
+    delete:
+      operationId: RemoveEventsController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event Removed
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Remove Event
+  /register:
+    post:
+      operationId: RegisterUserController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Register User'
+      responses:
+        '201':
+          description: User created
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      tags:
+        - Register User Controller
+  /login:
+    post:
+      operationId: AuthenticateUserController_handle
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Input Authenticate User'
+      responses:
+        '201':
+          description: User authenticated
+          content:
+            application/json:
+              schema:
+                properties:
+                  access_token:
+                    type: string
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      tags:
+        - Authenticate User Controller
+  /tags/{userUuid}:
+    get:
+      operationId: GetAllTagsController_handle
+      parameters:
+        - name: userUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Output Get All Tags'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get All Tags Controller
+  /habit/{userUuid}:
+    get:
+      operationId: GetAllHabitsController_handle
+      parameters:
+        - name: userUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Habit finded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OutputGetAllHabitsDTO'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get All Habits
+  /events/{userUuid}:
+    get:
+      operationId: GetAllEventsController_handle
+      parameters:
+        - name: userUuid
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: date
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Events finded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OutputGetAllEventsDTO'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get All Events
+info:
+  title: Example title
+  description: Description for api
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    Input Create Tag:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+        userUuid:
+          type: string
+      required:
+        - name
+        - color
+        - userUuid
+    IError:
+      type: object
+      properties:
+        reason:
+          type: string
+        message:
+          type: string
+      required:
+        - reason
+        - message
+    Input Create Habit:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+        userUuid:
+          type: string
+        dayHabit:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - color
+        - userUuid
+        - dayHabit
+    Input Update Habit:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        userUuid:
+          type: string
+          nullable: true
+        dayHabit:
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - uuid
+        - name
+        - color
+        - userUuid
+        - dayHabit
+    Input Create Event:
+      type: object
+      properties:
+        name:
+          type: string
+        allDay:
+          type: boolean
+        date:
+          format: date-time
+          type: string
+        startsOf:
+          format: date-time
+          type: string
+          nullable: true
+        endsOf:
+          format: date-time
+          type: string
+          nullable: true
+        tagUuid:
+          type: string
+        userUuid:
+          type: string
+        assignedUsers:
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - allDay
+        - date
+        - startsOf
+        - endsOf
+        - tagUuid
+        - userUuid
+        - assignedUsers
+    Input Update Event:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+          nullable: true
+        allDay:
+          type: boolean
+          nullable: true
+        date:
+          format: date-time
+          type: string
+          nullable: true
+        startsOf:
+          format: date-time
+          type: string
+          nullable: true
+        endsOf:
+          format: date-time
+          type: string
+          nullable: true
+        tagUuid:
+          type: string
+          nullable: true
+      required:
+        - uuid
+        - name
+        - allDay
+        - date
+        - startsOf
+        - endsOf
+        - tagUuid
+    Input Register User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        dateBirth:
+          format: date-time
+          type: string
+      required:
+        - name
+        - email
+        - password
+        - dateBirth
+    Input Authenticate User:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    Output Get All Tags:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+      required:
+        - uuid
+        - name
+        - color
+    OutputGetAllHabitsDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+        userUuid:
+          type: string
+      required:
+        - name
+        - color
+        - userUuid
+    OutputGetHabitByUuidDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        uuid:
+          type: string
+        color:
+          type: string
+        userUuid:
+          type: string
+        dayHabit:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - uuid
+        - color
+        - userUuid
+        - dayHabit
+    TagProps:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+        userUuid:
+          type: string
+        events:
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - uuid
+        - name
+        - color
+        - userUuid
+        - events
+    PickTypeClass:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+      required:
+        - uuid
+        - name
+        - email
+    OmitTypeClass:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        allDay:
+          type: boolean
+          default: false
+        date:
+          format: date-time
+          type: string
+        startsOf:
+          format: date-time
+          type: string
+        endsOf:
+          format: date-time
+          type: string
+        tagUuid:
+          type: string
+        Tag:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/TagProps'
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - uuid
+        - name
+        - allDay
+        - date
+        - startsOf
+        - endsOf
+        - tagUuid
+        - Tag
+        - createdAt
+        - updatedAt
+    AssignedEventsToUsers:
+      type: object
+      properties:
+        uuid:
+          type: string
+        eventUuid:
+          type: string
+        userUuid:
+          type: string
+        user:
+          $ref: '#/components/schemas/PickTypeClass'
+        event:
+          $ref: '#/components/schemas/OmitTypeClass'
+      required:
+        - uuid
+        - eventUuid
+        - userUuid
+        - user
+        - event
+    OutputGetAllEventsDTO:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        allDay:
+          type: boolean
+        date:
+          format: date-time
+          type: string
+        startsOf:
+          format: date-time
+          type: string
+        endsOf:
+          format: date-time
+          type: string
+        tag:
+          $ref: '#/components/schemas/TagProps'
+        assignedEventToUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssignedEventsToUsers'
+      required:
+        - uuid
+        - name
+        - allDay
+        - date
+        - startsOf
+        - endsOf
+        - tag
+        - assignedEventToUsers

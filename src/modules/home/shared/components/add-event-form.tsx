@@ -28,6 +28,8 @@ import { Switch } from '@/shared/components/ui/switch';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import {
   createEventControllerHandle,
+  OutputGetAllEventsDTO,
+  updateEventControllerHandle,
   useGetAllTagsControllerHandle,
 } from '@/shared/http/http';
 import { getSession } from '@/shared/utils/get-session';
@@ -53,12 +55,33 @@ interface TagType {
   color: string;
 }
 
-export const AddEventForm = () => {
+interface Props {
+  event?: OutputGetAllEventsDTO;
+}
+
+export const AddEventForm = ({ event }: Props) => {
   const { register, control, handleSubmit, setValue, watch } =
     useForm<FormType>({
       resolver: zodResolver(addEventSchema),
       defaultValues: {
         allDay: false,
+        ...(event && {
+          asssignedUsers: event.assignedEventToUsers.map((user) => ({
+            user: user.user.email,
+          })),
+          name: event.name,
+          date: new Date(event.date),
+          allDay: event.allDay,
+          tagUuid: JSON.stringify({
+            uuid: event.tag.uuid,
+            name: event.tag.name,
+            color: event.tag.color,
+          }),
+          endTimeHours: new Date(event.endsOf).getHours().toString(),
+          endTimeMinutes: new Date(event.endsOf).getMinutes().toString(),
+          startTimeHours: new Date(event.startsOf).getHours().toString(),
+          startTimeMinutes: new Date(event.startsOf).getMinutes().toString(),
+        }),
       },
     });
 
@@ -105,22 +128,47 @@ export const AddEventForm = () => {
     : {};
 
   const handleCreateEvent = async (data: FormType) => {
-    if (data.allDay === false) {
-      const startHours = setHours(data.date, Number(data.startTimeHours));
-      const endHours = setHours(data.date, Number(data.endTimeHours));
+    if (!event) {
+      if (data.allDay === false) {
+        const startHours = setHours(data.date, Number(data.startTimeHours));
+        const endHours = setHours(data.date, Number(data.endTimeHours));
 
-      const startsTime = setMinutes(startHours, Number(data.startTimeMinutes));
-      const endsTime = setMinutes(endHours, Number(data.endTimeMinutes));
+        const startsTime = setMinutes(
+          startHours,
+          Number(data.startTimeMinutes),
+        );
+        const endsTime = setMinutes(endHours, Number(data.endTimeMinutes));
+
+        await createEventControllerHandle(
+          {
+            name: data.name,
+            date: data.date,
+            allDay: data.allDay,
+            startsOf: startsTime,
+            endsOf: endsTime,
+            tagUuid: tagSelected.uuid,
+            userUuid: user?.uuid,
+            assignedUsers: data.asssignedUsers?.map((user) => user.user),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          },
+        );
+
+        return;
+      }
 
       await createEventControllerHandle(
         {
           name: data.name,
           date: data.date,
           allDay: data.allDay,
-          startsOf: startsTime,
-          endsOf: endsTime,
           tagUuid: tagSelected.uuid,
           userUuid: user?.uuid,
+          endsOf: null,
+          startsOf: null,
           assignedUsers: data.asssignedUsers?.map((user) => user.user),
         },
         {
@@ -129,28 +177,44 @@ export const AddEventForm = () => {
           },
         },
       );
+      return;
+    }
+    if (!event.allDay) {
+      const startHours = setHours(data.date, Number(data.startTimeHours));
+      const endHours = setHours(data.date, Number(data.endTimeHours));
+
+      const startsTime = setMinutes(startHours, Number(data.startTimeMinutes));
+      const endsTime = setMinutes(endHours, Number(data.endTimeMinutes));
+
+      await updateEventControllerHandle({
+        uuid: event.uuid,
+        name: data.name,
+        date: data.date.toISOString(),
+        allDay: data.allDay,
+        startsOf: startsTime.toISOString(),
+        endsOf: endsTime.toISOString(),
+        tagUuid: tagSelected.uuid,
+      });
 
       return;
     }
-
-    await createEventControllerHandle(
-      {
-        name: data.name,
-        date: data.date,
-        allDay: data.allDay,
-        tagUuid: tagSelected.uuid,
-        userUuid: user?.uuid,
-        endsOf: null,
-        startsOf: null,
-        assignedUsers: data.asssignedUsers?.map((user) => user.user),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      },
-    );
+    await updateEventControllerHandle({
+      uuid: event.uuid,
+      name: data.name,
+      date: data.date.toISOString(),
+      allDay: data.allDay,
+      tagUuid: tagSelected.uuid,
+      endsOf: null,
+      startsOf: null,
+    });
+    return;
   };
+
+  const handleRemoveAssign = (
+    index?: number,
+    userUuid?: string,
+    eventUuid?: string,
+  ) => {};
 
   return (
     <form
@@ -183,9 +247,12 @@ export const AddEventForm = () => {
             >
               <SelectTrigger
                 icon={<ChevronsUpDown />}
+                defaultValue={field.value}
                 className="w-full cursor-pointer border-gray-300"
               >
                 <SelectValue placeholder="Selecione uma etiqueta" />
+
+                {/* {field.value} */}
               </SelectTrigger>
 
               <SelectContent className="flex flex-col items-center gap-2">
