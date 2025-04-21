@@ -60,18 +60,15 @@ export const CalendarProvider = ({
     });
 
   const createHabit = async (input: InputCreateHabit) => {};
+
   const createTag = async (input: InputCreateTag) => {
     await createTagsControllerHandle(
       {
-        name: data.name,
-        color: data.color,
+        name: input.name,
+        color: input.color,
         userUuid: user.uuid,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      },
+      DEFAULT_SETTING_API,
     );
 
     refreshTags();
@@ -168,6 +165,8 @@ export const CalendarProvider = ({
     <CalendarContext.Provider
       value={{
         createEvent,
+        createHabit,
+        createTag,
         currentDate,
         getEventsByDay,
         updateEvent,
