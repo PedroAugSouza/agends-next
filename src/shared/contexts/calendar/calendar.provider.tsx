@@ -1,12 +1,23 @@
+'use client';
+
 import {
   createEventControllerHandle,
+  createTagsControllerHandle,
+  OutputGetAllEventsDTO,
   updateEventControllerHandle,
   useGetAllEventsControllerHandle,
+  useGetAllHabitsControllerHandle,
+  useGetAllTagsControllerHandle,
 } from '@/shared/http/http';
 import { CalendarContext } from './calendar.context';
 import { getSession } from '@/shared/utils/get-session';
 import { setHours, setMinutes } from 'date-fns';
-import { InputCreateEvent, InputUpdateEvent } from './calendar.contact';
+import {
+  InputCreateEvent,
+  InputCreateHabit,
+  InputCreateTag,
+  InputUpdateEvent,
+} from './calendar.contact';
 import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
 import { useState } from 'react';
 
@@ -22,11 +33,49 @@ export const CalendarProvider = ({
   const { data: events, mutate: refreshEvents } =
     useGetAllEventsControllerHandle(
       user.uuid,
-      { date: currentDate.toISOString() },
+      { date: currentDate.toDateString() },
       {
         axios: DEFAULT_SETTING_API,
       },
     );
+
+  const { data: tags, mutate: refreshTags } = useGetAllTagsControllerHandle(
+    user.uuid,
+    {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
+    },
+  );
+
+  const { data: habits, mutate: refreshHabits } =
+    useGetAllHabitsControllerHandle(user.uuid, {
+      axios: {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
+    });
+
+  const createHabit = async (input: InputCreateHabit) => {};
+  const createTag = async (input: InputCreateTag) => {
+    await createTagsControllerHandle(
+      {
+        name: data.name,
+        color: data.color,
+        userUuid: user.uuid,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      },
+    );
+
+    refreshTags();
+  };
 
   const createEvent = async (input: InputCreateEvent) => {
     if (input.allDay === false) {
@@ -106,12 +155,27 @@ export const CalendarProvider = ({
     return;
   };
 
+  const getEventsByDay = (currentDate: Date): OutputGetAllEventsDTO[] => {
+    const eventsFiltered = events?.data?.filter(
+      (event) =>
+        new Date(event.date).getDate() === currentDate.getDate() &&
+        new Date(event.date).getMonth() === currentDate.getMonth(),
+    );
+    return eventsFiltered ?? [];
+  };
+
   return (
     <CalendarContext.Provider
       value={{
         createEvent,
+        currentDate,
+        getEventsByDay,
         updateEvent,
         events: events?.data,
+        habits: habits?.data,
+        tags: tags?.data,
+        refreshHabits,
+        refreshTags,
         refreshEvents,
         setCurrentDate,
       }}

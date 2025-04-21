@@ -12,15 +12,16 @@ import { ChevronRight } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { z } from 'zod';
+import { useCalendar } from '@/shared/hooks/useCalendar';
 
 type FormTagType = z.infer<typeof addTagSchema>;
 
 interface Props {
   setToggleAddTag: Dispatch<SetStateAction<boolean>>;
-  mutateTags: () => void;
 }
 
-export const TagForm = ({ mutateTags, setToggleAddTag }: Props) => {
+export const TagForm = ({ setToggleAddTag }: Props) => {
+  const { refreshTags } = useCalendar();
   const colorsTag = [
     '#6B7280',
     '#EF4444',
@@ -54,7 +55,7 @@ export const TagForm = ({ mutateTags, setToggleAddTag }: Props) => {
       },
     ).then(() => {
       setToggleAddTag(false);
-      mutateTags();
+      refreshTags();
     });
   };
   return (

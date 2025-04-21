@@ -14,13 +14,7 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 
-import {
-  OutputGetAllEventsDTO,
-  removeTagsControllerHandle,
-  useGetAllEventsControllerHandle,
-  useGetAllHabitsControllerHandle,
-  useGetAllTagsControllerHandle,
-} from '@/shared/http/http';
+import { removeTagsControllerHandle } from '@/shared/http/http';
 
 import { getSession } from '@/shared/utils/get-session';
 
@@ -52,15 +46,7 @@ import { cn } from '@/shared/lib/utils';
 import { ptBR } from 'date-fns/locale';
 import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
-import { setMonth, setYear, setDate as setDateFNS } from 'date-fns';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogPortal,
-  DialogTitle,
-  DialogTrigger,
-} from '@/shared/components/ui/dialog';
+import { setMonth, setYear } from 'date-fns';
 import { AddEventForm } from './shared/components/add-event-form';
 import { useAuth } from '@/shared/hooks/useAuth';
 import {
@@ -69,84 +55,46 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/shared/components/ui/sheet';
+import { useCalendar } from '@/shared/hooks/useCalendar';
+import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
 
 export const HomeModule = () => {
   const user = getSession();
 
-  const [date, setDate] = useState<Date>(new Date());
+  const { getEventsByDay, tags, refreshTags, currentDate, setCurrentDate } =
+    useCalendar();
 
   const { signOut } = useAuth();
 
-  const { data: events, mutate: refreshEvents } = useGetAllEventsControllerHandle(
-    user.uuid,
-    { date: date.toDateString() },
-    {
-      axios: {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      },
-    },
-  );
-
-  const getEventsForDay = (currentDate: Date): OutputGetAllEventsDTO[] => {
-    const eventsFiltered = events?.data?.filter(
-      (event) =>
-        new Date(event.date).getDate() === currentDate.getDate() &&
-        new Date(event.date).getMonth() === currentDate.getMonth(),
-    );
-    return eventsFiltered ?? [];
-  };
-
   const handleNextMonth = () => {
-    if (date.getMonth() === 11) {
-      const newDate = setMonth(date, 0);
+    if (currentDate.getMonth() === 11) {
+      const newDate = setMonth(currentDate, 0);
 
-      setDate(setYear(newDate, newDate.getFullYear() + 1));
+      setCurrentDate(setYear(newDate, newDate.getFullYear() + 1));
 
       return;
     }
 
-    const newDate = setMonth(date, date.getMonth() + 1);
+    const newDate = setMonth(currentDate, currentDate.getMonth() + 1);
 
-    setDate(newDate);
+    setCurrentDate(newDate);
   };
   const handlePrevMonth = () => {
-    if (date.getMonth() === 0) {
-      const newDate = setMonth(date, 11);
+    if (currentDate.getMonth() === 0) {
+      const newDate = setMonth(currentDate, 11);
 
-      setDate(setYear(newDate, newDate.getFullYear() - 1));
+      setCurrentDate(setYear(newDate, newDate.getFullYear() - 1));
 
       return;
     }
 
-    const newDate = setMonth(date, date.getMonth() - 1);
+    const newDate = setMonth(currentDate, currentDate.getMonth() - 1);
 
-    setDate(newDate);
+    setCurrentDate(newDate);
   };
 
   const [toggleAddTag, setToggleAddTag] = useState(false);
   const [toggleAddHabit, setToggleAddHabit] = useState(false);
-
-  const { data: tags, mutate: mutateTags } = useGetAllTagsControllerHandle(
-    user.uuid,
-    {
-      axios: {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      },
-    },
-  );
-
-  const { data: habits, mutate: mutateHabits } =
-    useGetAllHabitsControllerHandle(user.uuid, {
-      axios: {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      },
-    });
 
   return (
     <main className="flex h-screen flex-col items-center justify-center overflow-hidden">
@@ -220,7 +168,7 @@ export const HomeModule = () => {
                 </div>
               </AccordionHeader>
               <AccordionContent className="flex flex-col items-center gap-1">
-                {tags?.data.map((tag) => (
+                {tags?.map((tag) => (
                   <Popover key={tag.uuid}>
                     <PopoverTrigger className="group flex w-full cursor-pointer items-center justify-between rounded border border-transparent px-2 py-1 hover:bg-white data-[state=open]:border-gray-200 data-[state=open]:bg-white">
                       <div className="flex items-center gap-2.5">
@@ -248,12 +196,11 @@ export const HomeModule = () => {
                         size="sm"
                         className="cursor-pointer rounded bg-gray-50 text-zinc-700 hover:bg-gray-100"
                         onClick={() =>
-                          removeTagsControllerHandle(tag.uuid, {
-                            headers: {
-                              Authorization: `Bearer ${user.token}`,
-                            },
-                          }).then(() => {
-                            mutateHabits();
+                          removeTagsControllerHandle(
+                            tag.uuid,
+                            DEFAULT_SETTING_API,
+                          ).then(() => {
+                            refreshTags();
                           })
                         }
                       >
@@ -264,12 +211,7 @@ export const HomeModule = () => {
                 ))}
               </AccordionContent>
             </AccordionItem>
-            {toggleAddTag && (
-              <TagForm
-                mutateTags={mutateTags}
-                setToggleAddTag={setToggleAddTag}
-              />
-            )}
+            {toggleAddTag && <TagForm setToggleAddTag={setToggleAddTag} />}
             {/* <AccordionItem value="item-2">
               <AccordionHeader className="flex flex-row items-center justify-between">
                 <span className="text-base font-semibold text-gray-700">
@@ -299,9 +241,9 @@ export const HomeModule = () => {
             <div className="flex items-center">
               <span className="w-40 text-xl font-medium text-gray-600">
                 <strong className="text-gray-800">
-                  {getMonth(date.getMonth())}
+                  {getMonth(currentDate.getMonth())}
                 </strong>{' '}
-                {date.getFullYear()}
+                {currentDate.getFullYear()}
               </span>
 
               <div className="flex items-center gap-1.5">
@@ -313,7 +255,7 @@ export const HomeModule = () => {
                 </button>
                 <button
                   className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700"
-                  onClick={() => setDate(new Date())}
+                  onClick={() => setCurrentDate(new Date())}
                 >
                   Hoje
                 </button>
@@ -363,7 +305,7 @@ export const HomeModule = () => {
             <Calendar
               className="mt-2.5 h-full p-0 pt-2.5"
               mode="single"
-              month={date}
+              month={currentDate}
               locale={ptBR}
               fixedWeeks
               classNames={{
@@ -387,7 +329,7 @@ export const HomeModule = () => {
               }}
               components={{
                 Day: (props) => (
-                  <Day {...props} events={getEventsForDay(props.date)} />
+                  <Day {...props} events={getEventsByDay(props.date)} />
                 ),
               }}
             />
