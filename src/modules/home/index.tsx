@@ -59,7 +59,6 @@ import { useCalendar } from '@/shared/hooks/useCalendar';
 import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
 
 export const HomeModule = () => {
-  const user = getSession();
 
   const { getEventsByDay, tags, refreshTags, currentDate, setCurrentDate } =
     useCalendar();

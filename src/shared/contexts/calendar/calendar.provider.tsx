@@ -4,6 +4,7 @@ import {
   createEventControllerHandle,
   createTagsControllerHandle,
   OutputGetAllEventsDTO,
+  removeAssignmentControllerHandle,
   updateEventControllerHandle,
   useGetAllEventsControllerHandle,
   useGetAllHabitsControllerHandle,
@@ -59,6 +60,17 @@ export const CalendarProvider = ({
       },
     });
 
+  const removeAssignment = async (eventUuid: string, userUuid: string) => {
+    await removeAssignmentControllerHandle(
+      userUuid,
+      eventUuid,
+      DEFAULT_SETTING_API,
+    );
+
+    refreshEvents();
+    return;
+  };
+
   const createHabit = async (input: InputCreateHabit) => {};
 
   const createTag = async (input: InputCreateTag) => {
@@ -95,6 +107,7 @@ export const CalendarProvider = ({
         },
         DEFAULT_SETTING_API,
       );
+      refreshEvents();
 
       return;
     }
@@ -112,6 +125,7 @@ export const CalendarProvider = ({
       },
       DEFAULT_SETTING_API,
     );
+    refreshEvents();
     return;
   };
   const updateEvent = async (input: InputUpdateEvent) => {
@@ -126,22 +140,22 @@ export const CalendarProvider = ({
         {
           uuid: input.uuid,
           name: input.name,
-          date: input.date.toISOString(),
+          date: input.date,
           allDay: input.allDay,
-          startsOf: startsTime.toISOString(),
-          endsOf: endsTime.toISOString(),
+          startsOf: startsTime,
+          endsOf: endsTime,
           tagUuid: input.tagUuid,
         },
         DEFAULT_SETTING_API,
       );
-
+      refreshEvents();
       return;
     }
     await updateEventControllerHandle(
       {
         uuid: input.uuid,
         name: input.name,
-        date: input.date.toISOString(),
+        date: input.date,
         allDay: input.allDay,
         tagUuid: input.tagUuid,
         endsOf: null,
@@ -149,6 +163,7 @@ export const CalendarProvider = ({
       },
       DEFAULT_SETTING_API,
     );
+    refreshEvents();
     return;
   };
 
@@ -164,6 +179,7 @@ export const CalendarProvider = ({
   return (
     <CalendarContext.Provider
       value={{
+        removeAssignment,
         createEvent,
         createHabit,
         createTag,

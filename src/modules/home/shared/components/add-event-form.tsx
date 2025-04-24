@@ -33,7 +33,12 @@ import {
   useGetAllTagsControllerHandle,
 } from '@/shared/http/http';
 import { getSession } from '@/shared/utils/get-session';
-import { Controller, useForm, useFieldArray } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  useFieldArray,
+  SubmitHandler,
+} from 'react-hook-form';
 import { z } from 'zod';
 import { addEventSchema } from '@/shared/schemas/add-event.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,6 +51,7 @@ import {
   CommandList,
 } from '@/shared/components/ui/command';
 import { useState } from 'react';
+import { useCalendar } from '@/shared/hooks/useCalendar';
 
 type FormType = z.infer<typeof addEventSchema>;
 
@@ -60,6 +66,9 @@ interface Props {
 }
 
 export const AddEventForm = ({ event }: Props) => {
+  const { createEvent, updateEvent, tags, refreshEvents, removeAssignment } =
+    useCalendar();
+
   const { register, control, handleSubmit, setValue, watch } =
     useForm<FormType>({
       resolver: zodResolver(addEventSchema),
@@ -115,111 +124,39 @@ export const AddEventForm = ({ event }: Props) => {
     },
   ];
 
-  const { data: tags } = useGetAllTagsControllerHandle(user?.uuid ?? '', {
-    axios: {
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-      },
-    },
-  });
-
   const tagSelected: TagType = watch('tagUuid')
     ? JSON.parse(watch('tagUuid'))
     : {};
 
-  const handleCreateEvent = async (data: FormType) => {
-    if (!event) {
-      if (data.allDay === false) {
-        const startHours = setHours(data.date, Number(data.startTimeHours));
-        const endHours = setHours(data.date, Number(data.endTimeHours));
-
-        const startsTime = setMinutes(
-          startHours,
-          Number(data.startTimeMinutes),
-        );
-        const endsTime = setMinutes(endHours, Number(data.endTimeMinutes));
-
-        await createEventControllerHandle(
-          {
-            name: data.name,
-            date: data.date,
-            allDay: data.allDay,
-            startsOf: startsTime,
-            endsOf: endsTime,
-            tagUuid: tagSelected.uuid,
-            userUuid: user?.uuid,
-            assignedUsers: data.asssignedUsers?.map((user) => user.user),
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${user?.token}`,
-            },
-          },
-        );
-
-        return;
-      }
-
-      await createEventControllerHandle(
-        {
-          name: data.name,
-          date: data.date,
-          allDay: data.allDay,
-          tagUuid: tagSelected.uuid,
-          userUuid: user?.uuid,
-          endsOf: null,
-          startsOf: null,
-          assignedUsers: data.asssignedUsers?.map((user) => user.user),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        },
-      );
-      return;
-    }
-    if (!event.allDay) {
-      const startHours = setHours(data.date, Number(data.startTimeHours));
-      const endHours = setHours(data.date, Number(data.endTimeHours));
-
-      const startsTime = setMinutes(startHours, Number(data.startTimeMinutes));
-      const endsTime = setMinutes(endHours, Number(data.endTimeMinutes));
-
-      await updateEventControllerHandle({
-        uuid: event.uuid,
-        name: data.name,
-        date: data.date.toISOString(),
-        allDay: data.allDay,
-        startsOf: startsTime.toISOString(),
-        endsOf: endsTime.toISOString(),
+  const onSubmit: SubmitHandler<FormType> = (data) => {
+    if (event) {
+      updateEvent({
+        ...data,
         tagUuid: tagSelected.uuid,
+        uuid: event.uuid,
       });
-
-      return;
+    } else {
+      createEvent({ ...data, tagUuid: tagSelected.uuid });
     }
-    await updateEventControllerHandle({
-      uuid: event.uuid,
-      name: data.name,
-      date: data.date.toISOString(),
-      allDay: data.allDay,
-      tagUuid: tagSelected.uuid,
-      endsOf: null,
-      startsOf: null,
-    });
-    return;
   };
 
   const handleRemoveAssign = (
     index?: number,
     userUuid?: string,
     eventUuid?: string,
-  ) => {};
+  ) => {
+    if (event) {
+      removeAssignment(eventUuid!, userUuid!);
+      refreshEvents();
+    } else {
+      remove(index);
+    }
+  };
 
   return (
     <form
       className="flex h-80 w-full flex-col items-start justify-between gap-2.5"
-      onSubmit={handleSubmit(handleCreateEvent)}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex w-full flex-col items-start gap-2.5">
         <div className="flex w-full items-center gap-2.5">
@@ -256,7 +193,7 @@ export const AddEventForm = ({ event }: Props) => {
               </SelectTrigger>
 
               <SelectContent className="flex flex-col items-center gap-2">
-                {tags?.data?.map((tag) => (
+                {tags?.map((tag) => (
                   <SelectItem
                     key={tag.uuid}
                     value={JSON.stringify(tag)}
@@ -288,9 +225,9 @@ export const AddEventForm = ({ event }: Props) => {
                     {fields.map((value, index) => (
                       <button
                         key={value.id}
-                        onClick={() => {
-                          remove(index);
-                        }}
+                        onClick={() =>
+                          handleRemoveAssign(index, user.uuid, event?.uuid)
+                        }
                         className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
                       >
                         <span className="truncate">{value.user}</span>

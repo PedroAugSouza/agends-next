@@ -258,6 +258,25 @@ paths:
         - bearer: []
       tags:
         - Remove Event
+  /remove-assignment/{userUuid}/{eventUuid}:
+    delete:
+      operationId: RemoveAssignmentController_handle
+      parameters:
+        - name: userUuid
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: eventUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - RemoveAssignment
   /register:
     post:
       operationId: RegisterUserController_handle

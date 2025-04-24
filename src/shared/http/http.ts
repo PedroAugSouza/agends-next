@@ -69,11 +69,11 @@ export interface InputUpdateEvent {
   /** @nullable */
   allDay: boolean | null;
   /** @nullable */
-  date: string | null;
+  date: Date | null;
   /** @nullable */
-  startsOf: string | null;
+  startsOf: Date | null;
   /** @nullable */
-  endsOf: string | null;
+  endsOf: Date | null;
   /** @nullable */
   tagUuid: string | null;
 }
@@ -630,6 +630,72 @@ export const useRemoveEventsControllerHandle = <TError = AxiosError<IError>>(
   };
 };
 
+export const removeAssignmentControllerHandle = (
+  userUuid: string,
+  eventUuid: string,
+  options?: AxiosRequestConfig,
+): Promise<AxiosResponse<void>> => {
+  return axios.delete(
+    `http://localhost:8000/remove-assignment/${userUuid}/${eventUuid}`,
+    options,
+  );
+};
+
+export const getRemoveAssignmentControllerHandleMutationFetcher = (
+  userUuid: string,
+  eventUuid: string,
+  options?: AxiosRequestConfig,
+) => {
+  return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
+    return removeAssignmentControllerHandle(userUuid, eventUuid, options);
+  };
+};
+export const getRemoveAssignmentControllerHandleMutationKey = (
+  userUuid: string,
+  eventUuid: string,
+) =>
+  [`http://localhost:8000/remove-assignment/${userUuid}/${eventUuid}`] as const;
+
+export type RemoveAssignmentControllerHandleMutationResult = NonNullable<
+  Awaited<ReturnType<typeof removeAssignmentControllerHandle>>
+>;
+export type RemoveAssignmentControllerHandleMutationError = AxiosError<unknown>;
+
+export const useRemoveAssignmentControllerHandle = <
+  TError = AxiosError<unknown>,
+>(
+  userUuid: string,
+  eventUuid: string,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof removeAssignmentControllerHandle>>,
+      TError,
+      Key,
+      Arguments,
+      Awaited<ReturnType<typeof removeAssignmentControllerHandle>>
+    > & { swrKey?: string };
+    axios?: AxiosRequestConfig;
+  },
+) => {
+  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getRemoveAssignmentControllerHandleMutationKey(userUuid, eventUuid);
+  const swrFn = getRemoveAssignmentControllerHandleMutationFetcher(
+    userUuid,
+    eventUuid,
+    axiosOptions,
+  );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+
 export const registerUserControllerHandle = (
   inputRegisterUser: InputRegisterUser,
   options?: AxiosRequestConfig,
@@ -1143,6 +1209,25 @@ export const getRemoveEventsControllerHandleMockHandler = (
   });
 };
 
+export const getRemoveAssignmentControllerHandleMockHandler = (
+  overrideResponse?:
+    | void
+    | ((
+        info: Parameters<Parameters<typeof http.delete>[1]>[0],
+      ) => Promise<void> | void),
+) => {
+  return http.delete(
+    '*/remove-assignment/:userUuid/:eventUuid',
+    async (info) => {
+      await delay(1000);
+      if (typeof overrideResponse === 'function') {
+        await overrideResponse(info);
+      }
+      return new HttpResponse(null, { status: 200 });
+    },
+  );
+};
+
 export const getRegisterUserControllerHandleMockHandler = (
   overrideResponse?:
     | void
@@ -1262,6 +1347,7 @@ export const getExampleTitleMock = () => [
   getCreateEventControllerHandleMockHandler(),
   getUpdateEventControllerHandleMockHandler(),
   getRemoveEventsControllerHandleMockHandler(),
+  getRemoveAssignmentControllerHandleMockHandler(),
   getRegisterUserControllerHandleMockHandler(),
   getAuthenticateUserControllerHandleMockHandler(),
   getGetAllTagsControllerHandleMockHandler(),

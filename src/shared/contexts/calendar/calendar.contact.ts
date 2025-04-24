@@ -17,13 +17,13 @@ export interface InputUpdateEvent extends InputCreateEvent {
 
 export type InputCreateTag = z.infer<typeof addTagSchema>;
 
-export type InputCreateHabit = infer<typeof addHabitSchema>;
+export type InputCreateHabit = z.infer<typeof addHabitSchema>;
 
 export interface CalendarContextProps {
-  updateEvent(input: InputCreateEvent): Promise<void>;
-  createTag(input: InputCreateEvent): Promise<void>;
-  createHabit(input: InputCreateEvent): Promise<void>;
-  createEvent(input: InputUpdateEvent): Promise<void>;
+  updateEvent(input: InputUpdateEvent): Promise<void>;
+  createEvent(input: InputCreateEvent): Promise<void>;
+  createTag(input: InputCreateTag): Promise<void>;
+  createHabit(input: InputCreateHabit): Promise<void>;
   getEventsByDay(currentDate: Date): OutputGetAllEventsDTO[];
   events: OutputGetAllEventsDTO[] | undefined;
   tags: OutputGetAllTags[] | undefined;
@@ -33,4 +33,5 @@ export interface CalendarContextProps {
   refreshEvents(): void;
   refreshTags(): void;
   refreshHabits(): void;
+  removeAssignment(eventUuid: string, userUuid: string): void;
 }
