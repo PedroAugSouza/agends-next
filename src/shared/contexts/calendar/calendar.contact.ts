@@ -33,5 +33,5 @@ export interface CalendarContextProps {
   refreshEvents(): void;
   refreshTags(): void;
   refreshHabits(): void;
-  removeAssignment(eventUuid: string, userUuid: string): void;
+  removeAssignment(eventUuid: string, userEmail: string): void;
 }

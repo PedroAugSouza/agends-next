@@ -60,9 +60,9 @@ export const CalendarProvider = ({
       },
     });
 
-  const removeAssignment = async (eventUuid: string, userUuid: string) => {
+  const removeAssignment = async (eventUuid: string, userEmail: string) => {
     await removeAssignmentControllerHandle(
-      userUuid,
+      userEmail,
       eventUuid,
       DEFAULT_SETTING_API,
     );

@@ -142,11 +142,11 @@ export const AddEventForm = ({ event }: Props) => {
 
   const handleRemoveAssign = (
     index?: number,
-    userUuid?: string,
+    userEmail?: string,
     eventUuid?: string,
   ) => {
     if (event) {
-      removeAssignment(eventUuid!, userUuid!);
+      removeAssignment(eventUuid!, userEmail!);
       refreshEvents();
     } else {
       remove(index);
@@ -226,7 +226,7 @@ export const AddEventForm = ({ event }: Props) => {
                       <button
                         key={value.id}
                         onClick={() =>
-                          handleRemoveAssign(index, user.uuid, event?.uuid)
+                          handleRemoveAssign(index, value.user, event?.uuid)
                         }
                         className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
                       >
