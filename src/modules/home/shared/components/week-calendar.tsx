@@ -1,10 +1,17 @@
 'use client';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/shared/components/ui/popover';
 import { useCalendar } from '@/shared/hooks/useCalendar';
 import { cn } from '@/shared/lib/utils';
 import { getDay, getHours, getMinutes, getWeek } from 'date-fns';
+import { AddEventForm } from './add-event-form';
+import { PopoverArrow } from '@radix-ui/react-popover';
 
 export const WeekCalendar = () => {
-  const { getEventsByDay } = useCalendar();
+  const { getEventsByDay, currentDate } = useCalendar();
 
   const getDaysInWeek = (weekNumber: number) => {
     const currentYear = new Date().getFullYear();
@@ -30,7 +37,7 @@ export const WeekCalendar = () => {
     <div className="flex h-full flex-1 grow flex-col items-start justify-start gap-2 px-2.5">
       <header className="flex w-full items-center border-b pr-2.5 pl-16">
         <div className="flex w-full items-end justify-end gap-2.5 px-2.5 py-2">
-          {getDaysInWeek(getWeek(new Date())).map((date) => (
+          {getDaysInWeek(getWeek(currentDate)).map((date) => (
             <div
               key={date.toISOString()}
               className="grid flex-1 place-items-center border-r border-gray-200 py-1.5 last:border-none"
@@ -61,7 +68,7 @@ export const WeekCalendar = () => {
         </div>
 
         <div className="grid h-full w-full flex-1 grid-cols-7 gap-2.5 px-2.5">
-          {getDaysInWeek(getWeek(new Date())).map((date) => (
+          {getDaysInWeek(getWeek(currentDate)).map((date) => (
             <div
               key={date.toISOString()}
               className="flex h-full flex-1 items-center gap-1.5 overflow-auto border-r border-gray-200 px-1.5 pr-4 last:border-none"
@@ -79,31 +86,50 @@ export const WeekCalendar = () => {
 
                 return (
                   <div
-                    className="grid h-full w-full min-w-14 grid-rows-24"
+                    className="grid h-full w-full min-w-20 grid-rows-24"
                     key={event.uuid}
                   >
-                    <div
-                      className="flex h-full flex-1 items-center justify-between overflow-hidden rounded-sm"
-                      style={{
-                        gridRowStart: startHour + 1,
-                        gridRowEnd: endHour + 2,
-                        backgroundColor: event.tag?.color + '30',
-                      }}
-                    >
-                      <div
-                        className="h-full w-2"
-                        style={{ backgroundColor: event.tag?.color }}
-                      />
-                      <div className="flex h-full w-full flex-col items-start justify-start truncate p-1">
-                        <span className="w-full truncate text-gray-700">
-                          {event.name}
-                        </span>
-                        <span className="truncate text-xs text-gray-500">
-                          {`${startHour}h${startMinutes}`}~
-                          {`${endHour}h${endMinutes}`}
-                        </span>
-                      </div>
-                    </div>
+                    <Popover>
+                      <PopoverTrigger
+                        className="flex h-full flex-1 cursor-pointer items-center justify-between overflow-hidden rounded-sm"
+                        style={{
+                          ...(event.allDay
+                            ? {
+                                gridRowStart: 1,
+                                gridRowEnd: 25,
+                              }
+                            : {
+                                gridRowStart: startHour + 1,
+                                gridRowEnd: endHour + 2,
+                              }),
+                          backgroundColor: event.tag?.color + '20',
+                        }}
+                      >
+                        <div
+                          className="h-full w-2"
+                          style={{ backgroundColor: event.tag?.color }}
+                        />
+                        <div className="flex h-full w-full flex-col items-start justify-start truncate p-1">
+                          <span className="w-full truncate text-start text-gray-700">
+                            {event.name}
+                          </span>
+                          {event.allDay ? (
+                            <span className="w-full truncate text-start text-xs text-gray-500">
+                              Dia Inteiro
+                            </span>
+                          ) : (
+                            <span className="w-full truncate text-start text-xs text-gray-500">
+                              {`${startHour}h${startMinutes}`}~
+                              {`${endHour}h${endMinutes}`}
+                            </span>
+                          )}
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="h-max" side="right">
+                        <PopoverArrow className="fill-gray-300" />
+                        <AddEventForm event={event} />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 );
               })}

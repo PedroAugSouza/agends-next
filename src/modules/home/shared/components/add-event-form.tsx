@@ -87,9 +87,15 @@ export const AddEventForm = ({ event }: Props) => {
             color: event.tag.color,
           }),
           endTimeHours: new Date(event.endsOf).getHours().toString(),
-          endTimeMinutes: new Date(event.endsOf).getMinutes().toString(),
+          endTimeMinutes: new Date(event.endsOf)
+            .getMinutes()
+            .toString()
+            .padStart(2, '0'),
           startTimeHours: new Date(event.startsOf).getHours().toString(),
-          startTimeMinutes: new Date(event.startsOf).getMinutes().toString(),
+          startTimeMinutes: new Date(event.startsOf)
+            .getMinutes()
+            .toString()
+            .padStart(2, '0'),
         }),
       },
     });
@@ -155,10 +161,10 @@ export const AddEventForm = ({ event }: Props) => {
 
   return (
     <form
-      className="flex h-80 w-full flex-col items-start justify-between gap-2.5"
+      className="flex w-full flex-col items-start justify-between gap-2.5"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="flex w-full flex-col items-start gap-2.5">
+      <div className="flex h-64 w-full flex-col items-start gap-2.5">
         <div className="flex w-full items-center gap-2.5">
           <div
             className="size-4 rounded-full border"

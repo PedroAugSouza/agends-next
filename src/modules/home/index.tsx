@@ -47,7 +47,14 @@ import { cn } from '@/shared/lib/utils';
 import { ptBR } from 'date-fns/locale';
 import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
-import { set, setMonth, setYear } from 'date-fns';
+import {
+  getISOWeeksInYear,
+  getWeek,
+  set,
+  setMonth,
+  setWeek,
+  setYear,
+} from 'date-fns';
 import { AddEventForm } from './shared/components/add-event-form';
 import { useAuth } from '@/shared/hooks/useAuth';
 import {
@@ -141,12 +148,45 @@ export const HomeModule = () => {
     setCurrentDate(newDate);
   };
 
+  const handlePrevWeek = () => {
+    if (getWeek(currentDate) === 0) {
+      const newDate = setWeek(
+        currentDate,
+        getISOWeeksInYear(setYear(currentDate, currentDate.getFullYear() - 1)),
+      );
+
+      setCurrentDate(setYear(newDate, newDate.getFullYear() - 1));
+
+      return;
+    }
+
+    const newDate = setWeek(currentDate, getWeek(currentDate) - 1);
+
+    setCurrentDate(newDate);
+  };
+  const handleNextWeek = () => {
+    if (getWeek(currentDate) === getISOWeeksInYear(currentDate)) {
+      const newDate = setWeek(
+        currentDate,
+        getISOWeeksInYear(setYear(currentDate, currentDate.getFullYear() + 1)),
+      );
+
+      setCurrentDate(setYear(newDate, newDate.getFullYear() + 1));
+
+      return;
+    }
+
+    const newDate = setWeek(currentDate, getWeek(currentDate) + 1);
+
+    setCurrentDate(newDate);
+  };
+
   const [toggleAddTag, setToggleAddTag] = useState(false);
   const [toggleAddHabit, setToggleAddHabit] = useState(false);
 
   return (
-    <main className="flex h-screen flex-col items-center justify-center overflow-hidden">
-      <nav className="z-10 flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
+    <main className="flex h-screen flex-col items-start justify-start overflow-hidden">
+      <nav className="flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
         <Brand />
 
         <div className="flex items-center gap-4">
@@ -309,7 +349,9 @@ export const HomeModule = () => {
                 <div className="flex items-center gap-1.5">
                   <button
                     className="cursor-pointer text-violet-700"
-                    onClick={handlePrevMonth}
+                    onClick={
+                      viewMode === 'month' ? handlePrevMonth : handlePrevWeek
+                    }
                   >
                     <ChevronLeft size={22} strokeWidth={1.5} />
                   </button>
@@ -321,7 +363,9 @@ export const HomeModule = () => {
                   </button>
                   <button
                     className="cursor-pointer text-violet-700"
-                    onClick={handleNextMonth}
+                    onClick={
+                      viewMode === 'month' ? handleNextMonth : handleNextWeek
+                    }
                   >
                     <ChevronRight size={22} strokeWidth={1.5} />
                   </button>
