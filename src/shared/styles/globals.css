@@ -16,9 +16,8 @@
 @utility h-13 {
   height: 54px;
 }
-
-.classe  {
-  
+@utility grid-rows-24 {
+  grid-template-rows: repeat(24, calc(var(--spacing) * 9));
 }
 
 @theme inline {

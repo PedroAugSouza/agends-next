@@ -1,4 +1,5 @@
 'use client';
+import '@schedule-x/theme-default/dist/index.css';
 
 import { Brand } from '@/shared/components/common/brand';
 import {
@@ -15,8 +16,6 @@ import {
 } from '@/shared/components/ui/popover';
 
 import { removeTagsControllerHandle } from '@/shared/http/http';
-
-import { getSession } from '@/shared/utils/get-session';
 
 import { AccordionHeader } from '@radix-ui/react-accordion';
 import { PopoverArrow } from '@radix-ui/react-popover';
@@ -38,6 +37,8 @@ import colors from 'tailwindcss/colors';
 import { TagForm } from './shared/components/tag-form';
 import {
   Select,
+  SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
@@ -46,7 +47,7 @@ import { cn } from '@/shared/lib/utils';
 import { ptBR } from 'date-fns/locale';
 import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
-import { setMonth, setYear } from 'date-fns';
+import { set, setMonth, setYear } from 'date-fns';
 import { AddEventForm } from './shared/components/add-event-form';
 import { useAuth } from '@/shared/hooks/useAuth';
 import {
@@ -62,8 +63,52 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/shared/components/ui/resizable';
+import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+
+import { ScheduleXCalendar, useNextCalendarApp } from '@schedule-x/react';
+import {
+  createViewDay,
+  createViewMonthAgenda,
+  createViewMonthGrid,
+  createViewWeek,
+} from '@schedule-x/calendar';
+import { createEventsServicePlugin } from '@schedule-x/events-service';
+
+import { getISOWeek } from 'date-fns';
+import { WeekCalendar } from './shared/components/week-calendar';
 
 export const HomeModule = () => {
+  const eventsService = useState(() => createEventsServicePlugin())[0];
+
+  const calendar = useNextCalendarApp({
+    views: [
+      createViewDay(),
+      createViewWeek(),
+      createViewMonthGrid(),
+      createViewMonthAgenda(),
+    ],
+    events: [
+      {
+        id: '1',
+        title: 'Event 1',
+        start: '2023-12-16',
+        end: '2023-12-16',
+      },
+    ],
+    plugins: [eventsService],
+    callbacks: {
+      onRender: () => {
+        // get all events
+        eventsService.getAll();
+      },
+    },
+  });
+
+  const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
+
+  const localizer = momentLocalizer(moment);
+
   const { getEventsByDay, tags, refreshTags, currentDate, setCurrentDate } =
     useCalendar();
 
@@ -284,9 +329,14 @@ export const HomeModule = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <Select>
+                <Select
+                  onValueChange={(value) =>
+                    setViewMode(value as 'month' | 'week')
+                  }
+                  defaultValue="month"
+                >
                   <SelectTrigger
-                    className="h-8 w-32 border-gray-300 p-2.5 shadow-none data-[placeholder]:text-gray-700"
+                    className="h-8 w-32 cursor-pointer border-gray-300 p-2.5 shadow-none data-[placeholder]:text-gray-700"
                     icon={<ChevronsUpDown />}
                   >
                     <SelectValue
@@ -294,6 +344,14 @@ export const HomeModule = () => {
                       className="text-gray-600 placeholder:text-gray-600"
                     />
                   </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="month" className="cursor-pointer">
+                      Mês
+                    </SelectItem>
+                    <SelectItem value="week" className="cursor-pointer">
+                      Semana
+                    </SelectItem>
+                  </SelectContent>
                 </Select>
 
                 <Sheet>
@@ -317,37 +375,40 @@ export const HomeModule = () => {
               </div>
             </nav>
             <div className="flex w-full grow items-center">
-              <Calendar
-                className="mt-2.5 h-full p-0 pt-2.5"
-                mode="single"
-                month={currentDate}
-                locale={ptBR}
-                fixedWeeks
-                classNames={{
-                  nav: 'hidden',
-                  caption: 'hidden',
-                  month: 'w-full grow h-full',
-                  root: 'w-full h-full',
-                  table: 'w-full grow  h-full flex flex-col h-full',
-                  tbody: 'flex flex-wrap grow justify-between ',
-                  head: 'w-full',
-                  head_row:
-                    ' w-full grid grid-cols-7 border-b pb-2.5 border-gray-200',
-                  head_cell:
-                    'border-r last:border-none border-gray-200 text-gray-600 w-full items-start flex p-2.5 font-semibold capitalize',
-                  cell: 'flex w-full items-center justify-between grow h-full',
-                  day: cn(
-                    buttonVariants({ variant: 'ghost' }),
-                    'flex-1 h-full  p-0 font-normal aria-selected:opacity-100',
-                  ),
-                  months: ' h-full',
-                }}
-                components={{
-                  Day: (props) => (
-                    <Day {...props} events={getEventsByDay(props.date)} />
-                  ),
-                }}
-              />
+              {viewMode === 'month' ? (
+                <Calendar
+                  className="mt-2.5 h-full p-0 pt-2.5"
+                  mode="single"
+                  month={currentDate}
+                  locale={ptBR}
+                  classNames={{
+                    nav: 'hidden',
+                    caption: 'hidden',
+                    month: 'w-full grow h-full',
+                    root: 'w-full h-full',
+                    table: 'w-full grow  h-full flex flex-col h-full',
+                    tbody: 'flex flex-wrap grow justify-between ',
+                    head: 'w-full',
+                    head_row:
+                      ' w-full grid grid-cols-7 border-b pb-2.5 border-gray-200',
+                    head_cell:
+                      'border-r last:border-none border-gray-200 text-gray-600 w-full items-start flex p-2.5 font-semibold capitalize',
+                    cell: 'flex w-full items-center justify-between grow h-full',
+                    day: cn(
+                      buttonVariants({ variant: 'ghost' }),
+                      'flex-1 h-full  p-0 font-normal aria-selected:opacity-100',
+                    ),
+                    months: ' h-full',
+                  }}
+                  components={{
+                    Day: (props) => (
+                      <Day {...props} events={getEventsByDay(props.date)} />
+                    ),
+                  }}
+                />
+              ) : (
+                <WeekCalendar />
+              )}
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
