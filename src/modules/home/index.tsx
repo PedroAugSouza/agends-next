@@ -50,7 +50,6 @@ import { getMonth } from '@/shared/utils/getMonth';
 import {
   getISOWeeksInYear,
   getWeek,
-  set,
   setMonth,
   setWeek,
   setYear,
@@ -70,51 +69,11 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/shared/components/ui/resizable';
-import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
 
-import { ScheduleXCalendar, useNextCalendarApp } from '@schedule-x/react';
-import {
-  createViewDay,
-  createViewMonthAgenda,
-  createViewMonthGrid,
-  createViewWeek,
-} from '@schedule-x/calendar';
-import { createEventsServicePlugin } from '@schedule-x/events-service';
-
-import { getISOWeek } from 'date-fns';
 import { WeekCalendar } from './shared/components/week-calendar';
 
 export const HomeModule = () => {
-  const eventsService = useState(() => createEventsServicePlugin())[0];
-
-  const calendar = useNextCalendarApp({
-    views: [
-      createViewDay(),
-      createViewWeek(),
-      createViewMonthGrid(),
-      createViewMonthAgenda(),
-    ],
-    events: [
-      {
-        id: '1',
-        title: 'Event 1',
-        start: '2023-12-16',
-        end: '2023-12-16',
-      },
-    ],
-    plugins: [eventsService],
-    callbacks: {
-      onRender: () => {
-        // get all events
-        eventsService.getAll();
-      },
-    },
-  });
-
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
-
-  const localizer = momentLocalizer(moment);
 
   const { getEventsByDay, tags, refreshTags, currentDate, setCurrentDate } =
     useCalendar();

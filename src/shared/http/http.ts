@@ -146,6 +146,7 @@ export interface OmitTypeClass {
 
 export interface AssignedEventsToUsers {
   uuid: string;
+  isOwner: boolean;
   eventUuid: string;
   userUuid: string;
   user: PickTypeClass;
@@ -1025,6 +1026,7 @@ export const getGetAllEventsControllerHandleResponseMock =
         (_, i) => i + 1,
       ).map(() => ({
         uuid: faker.string.alpha(20),
+        isOwner: faker.datatype.boolean(),
         eventUuid: faker.string.alpha(20),
         userUuid: faker.string.alpha(20),
         user: {

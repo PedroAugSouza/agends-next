@@ -69,36 +69,36 @@ export const AddEventForm = ({ event }: Props) => {
   const { createEvent, updateEvent, tags, refreshEvents, removeAssignment } =
     useCalendar();
 
-  const { register, control, handleSubmit, setValue, watch } =
-    useForm<FormType>({
-      resolver: zodResolver(addEventSchema),
-      defaultValues: {
-        allDay: false,
-        ...(event && {
-          asssignedUsers: event.assignedEventToUsers.map((user) => ({
-            user: user.user.email,
-          })),
-          name: event.name,
-          date: new Date(event.date),
-          allDay: event.allDay,
-          tagUuid: JSON.stringify({
-            uuid: event.tag.uuid,
-            name: event.tag.name,
-            color: event.tag.color,
-          }),
-          endTimeHours: new Date(event.endsOf).getHours().toString(),
-          endTimeMinutes: new Date(event.endsOf)
-            .getMinutes()
-            .toString()
-            .padStart(2, '0'),
-          startTimeHours: new Date(event.startsOf).getHours().toString(),
-          startTimeMinutes: new Date(event.startsOf)
-            .getMinutes()
-            .toString()
-            .padStart(2, '0'),
+  const { register, control, handleSubmit, watch } = useForm<FormType>({
+    resolver: zodResolver(addEventSchema),
+
+    defaultValues: {
+      allDay: false,
+      ...(event && {
+        asssignedUsers: event.assignedEventToUsers.map((user) => ({
+          user: user.user.email,
+        })),
+        name: event.name,
+        date: new Date(event.date),
+        allDay: event.allDay,
+        tagUuid: JSON.stringify({
+          uuid: event.tag.uuid,
+          name: event.tag.name,
+          color: event.tag.color,
         }),
-      },
-    });
+        endTimeHours: new Date(event.endsOf).getHours().toString(),
+        endTimeMinutes: new Date(event.endsOf)
+          .getMinutes()
+          .toString()
+          .padStart(2, '0'),
+        startTimeHours: new Date(event.startsOf).getHours().toString(),
+        startTimeMinutes: new Date(event.startsOf)
+          .getMinutes()
+          .toString()
+          .padStart(2, '0'),
+      }),
+    },
+  });
 
   const { append, remove, fields } = useFieldArray({
     control,
@@ -159,12 +159,29 @@ export const AddEventForm = ({ event }: Props) => {
     }
   };
 
+  const thisUserIsOwner = event
+    ? event.assignedEventToUsers.filter(
+        (assign) => assign.user.uuid === user.uuid,
+      )[0].isOwner
+    : true;
+
+  const fieldsFiltered = watch('asssignedUsers').filter(
+    (value) =>
+      value.user !==
+        event?.assignedEventToUsers.filter((assigned) => assigned.isOwner)[0]
+          ?.user?.email || '',
+  );
+
   return (
     <form
       className="flex w-full flex-col items-start justify-between gap-2.5"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="flex h-64 w-full flex-col items-start gap-2.5">
+      <div
+        className={cn('flex h-64 w-full flex-col items-start gap-2.5', {
+          'text-zinc-400 **:cursor-not-allowed': !thisUserIsOwner,
+        })}
+      >
         <div className="flex w-full items-center gap-2.5">
           <div
             className="size-4 rounded-full border"
@@ -174,6 +191,7 @@ export const AddEventForm = ({ event }: Props) => {
             type="text"
             className="border-none outline-none placeholder:italic"
             placeholder="Nome do evento"
+            disabled={!thisUserIsOwner}
             {...register('name')}
           />
         </div>
@@ -181,6 +199,7 @@ export const AddEventForm = ({ event }: Props) => {
         <Controller
           control={control}
           name="tagUuid"
+          disabled={!thisUserIsOwner}
           render={({ field }) => (
             <Select
               onValueChange={(value) => {
@@ -190,6 +209,7 @@ export const AddEventForm = ({ event }: Props) => {
             >
               <SelectTrigger
                 icon={<ChevronsUpDown />}
+                disabled={!thisUserIsOwner}
                 defaultValue={field.value}
                 className="w-full cursor-pointer border-gray-300"
               >
@@ -216,33 +236,44 @@ export const AddEventForm = ({ event }: Props) => {
         />
         <div className="flex w-full flex-col gap-2 text-gray-500">
           <Popover open={open} onOpenChange={setOpen}>
-            {fields.length ? (
+            {fieldsFiltered.length ? (
               <div
                 aria-expanded={open}
                 className={cn(
                   buttonVariants({ variant: 'outline' }),
                   'relative h-max min-h-9 w-full cursor-pointer justify-between border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
+                  {
+                    'cursor-not-allowed opacity-60 **:cursor-not-allowed':
+                      !thisUserIsOwner,
+                  },
                 )}
               >
-                <PopoverTrigger className="pointer-events-none absolute inset-0 h-full w-full" />
+                <PopoverTrigger
+                  className="pointer-events-none absolute inset-0 h-full w-full"
+                  disabled={!thisUserIsOwner}
+                />
                 <div className="flex flex-1 items-center gap-1">
                   <User />
                   <div className="flex flex-1 flex-wrap items-center gap-1 text-sm">
-                    {fields.map((value, index) => (
-                      <button
-                        key={value.id}
-                        onClick={() =>
-                          handleRemoveAssign(index, value.user, event?.uuid)
-                        }
-                        className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
-                      >
-                        <span className="truncate">{value.user}</span>
-                        <X size={6} strokeWidth={1} />
-                      </button>
-                    ))}
+                    {fieldsFiltered.map((value, index) => {
+                      return (
+                        <button
+                          key={index}
+                          onClick={() =>
+                            handleRemoveAssign(index, value.user, event?.uuid)
+                          }
+                          disabled={!thisUserIsOwner}
+                          className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
+                        >
+                          <span className="truncate">{value.user}</span>
+                          <X size={6} strokeWidth={1} />
+                        </button>
+                      );
+                    })}
                     <button
                       className="cursor-pointer rounded p-0.5 hover:bg-gray-100"
                       onClick={() => setOpen(true)}
+                      disabled={!thisUserIsOwner}
                     >
                       <Plus />
                     </button>
@@ -250,8 +281,9 @@ export const AddEventForm = ({ event }: Props) => {
                 </div>
               </div>
             ) : (
-              <PopoverTrigger asChild>
-                <div
+              <PopoverTrigger asChild disabled={!thisUserIsOwner}>
+                <button
+                  disabled={!thisUserIsOwner}
                   aria-expanded={open}
                   className={cn(
                     buttonVariants({ variant: 'outline' }),
@@ -260,7 +292,7 @@ export const AddEventForm = ({ event }: Props) => {
                 >
                   <User />
                   <span>Adicionar pessoas</span>
-                </div>
+                </button>
               </PopoverTrigger>
             )}
 
@@ -306,7 +338,16 @@ export const AddEventForm = ({ event }: Props) => {
         </div>
 
         <Popover>
-          <PopoverTrigger className="flex h-9 w-full cursor-pointer items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1 text-gray-500">
+          <PopoverTrigger
+            className={cn(
+              'flex h-9 w-full cursor-pointer items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1 text-gray-500',
+              {
+                'cursor-not-allowed opacity-60 **:cursor-not-allowed':
+                  !thisUserIsOwner,
+              },
+            )}
+            disabled={!thisUserIsOwner}
+          >
             <CalendarIcon size={18} strokeWidth={1.5} />
 
             {watch('date')
@@ -336,13 +377,20 @@ export const AddEventForm = ({ event }: Props) => {
           </PopoverContent>
         </Popover>
         <div className="flex w-full items-center justify-between">
-          <span className="text-gray-600">Dia inteiro</span>
+          <span
+            className={cn('text-gray-600', {
+              'text-gray-400': !thisUserIsOwner,
+            })}
+          >
+            Dia inteiro
+          </span>
 
           <Controller
             control={control}
             name="allDay"
             render={({ field }) => (
               <Switch
+                disabled={!thisUserIsOwner}
                 onCheckedChange={(value) => {
                   field.onChange(value);
                 }}
@@ -354,7 +402,15 @@ export const AddEventForm = ({ event }: Props) => {
 
         {watch('allDay') === false && (
           <>
-            <div className="flex w-full items-center justify-between text-gray-600">
+            <div
+              className={cn(
+                'flex w-full items-center justify-between text-gray-600',
+                {
+                  'cursor-not-allowed opacity-60 **:cursor-not-allowed':
+                    !thisUserIsOwner,
+                },
+              )}
+            >
               <span>Começa</span>
               <div className="flex items-center justify-between gap-2 px-1.5">
                 <div className="flex items-center gap-1">
@@ -363,6 +419,7 @@ export const AddEventForm = ({ event }: Props) => {
                     className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
                     placeholder="00"
                     maxLength={2}
+                    disabled={!thisUserIsOwner}
                     {...register('startTimeHours')}
                   />
                   <span>:</span>
@@ -371,6 +428,7 @@ export const AddEventForm = ({ event }: Props) => {
                     placeholder="00"
                     className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
                     maxLength={2}
+                    disabled={!thisUserIsOwner}
                     {...register('startTimeMinutes')}
                   />
                 </div>
@@ -381,7 +439,15 @@ export const AddEventForm = ({ event }: Props) => {
                 />
               </div>
             </div>
-            <div className="flex w-full items-center justify-between text-gray-600">
+            <div
+              className={cn(
+                'flex w-full items-center justify-between text-gray-600',
+                {
+                  'cursor-not-allowed opacity-60 **:cursor-not-allowed':
+                    !thisUserIsOwner,
+                },
+              )}
+            >
               <span>Termina</span>
               <div className="flex items-center justify-between gap-2 px-1.5">
                 <div className="flex items-center gap-1">
@@ -390,6 +456,7 @@ export const AddEventForm = ({ event }: Props) => {
                     placeholder="00"
                     className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
                     maxLength={2}
+                    disabled={!thisUserIsOwner}
                     {...register('endTimeHours')}
                   />
                   <span>:</span>
@@ -398,6 +465,7 @@ export const AddEventForm = ({ event }: Props) => {
                     placeholder="00"
                     className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
                     maxLength={2}
+                    disabled={!thisUserIsOwner}
                     {...register('endTimeMinutes')}
                   />
                 </div>
@@ -411,13 +479,14 @@ export const AddEventForm = ({ event }: Props) => {
           </>
         )}
       </div>
-
-      <div className="mt-10 flex w-full items-center justify-end gap-2.5">
-        <Button className="bg-red-500 px-2 py-1">Cancelar</Button>
-        <Button className="bg-emerald-500 px-2 py-1" type="submit">
-          Salvar
-        </Button>
-      </div>
+      {thisUserIsOwner && (
+        <div className="mt-10 flex w-full items-center justify-end gap-2.5">
+          <Button className="bg-red-500 px-2 py-1">Cancelar</Button>
+          <Button className="bg-emerald-500 px-2 py-1" type="submit">
+            Salvar
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

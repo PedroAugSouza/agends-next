@@ -745,6 +745,8 @@ components:
       properties:
         uuid:
           type: string
+        isOwner:
+          type: boolean
         eventUuid:
           type: string
         userUuid:
@@ -755,6 +757,7 @@ components:
           $ref: '#/components/schemas/OmitTypeClass'
       required:
         - uuid
+        - isOwner
         - eventUuid
         - userUuid
         - user
