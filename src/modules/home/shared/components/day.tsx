@@ -9,6 +9,7 @@ import { OutputGetAllEventsDTO } from '@/shared/http/http';
 import { cn } from '@/shared/lib/utils';
 import { setYear } from 'date-fns';
 import { AddEventForm } from './add-event-form';
+import { PopoverArrow } from '@radix-ui/react-popover';
 
 interface Props {
   displayMonth: Date;
@@ -54,6 +55,7 @@ export const Day = ({ date, displayMonth, events }: Props) => {
               className="w-72 rounded-lg p-4 text-gray-700"
               side="left"
             >
+              <PopoverArrow className="fill-gray-300" />
               <AddEventForm event={event} />
             </PopoverContent>
           </Popover>

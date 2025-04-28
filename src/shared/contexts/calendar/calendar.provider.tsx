@@ -128,6 +128,7 @@ export const CalendarProvider = ({
     refreshEvents();
     return;
   };
+
   const updateEvent = async (input: InputUpdateEvent) => {
     if (!input.allDay) {
       const startHours = setHours(input.date, Number(input.startTimeHours));

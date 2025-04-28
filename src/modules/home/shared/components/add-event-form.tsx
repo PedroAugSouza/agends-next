@@ -52,6 +52,7 @@ import {
 } from '@/shared/components/ui/command';
 import { useState } from 'react';
 import { useCalendar } from '@/shared/hooks/useCalendar';
+import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
 
 type FormType = z.infer<typeof addEventSchema>;
 
@@ -66,7 +67,7 @@ interface Props {
 }
 
 export const AddEventForm = ({ event }: Props) => {
-  const { createEvent, updateEvent, tags, refreshEvents, removeAssignment } =
+  const { createEvent, updateEvent, refreshEvents, removeAssignment } =
     useCalendar();
 
   const { register, control, handleSubmit, watch } = useForm<FormType>({
@@ -107,6 +108,21 @@ export const AddEventForm = ({ event }: Props) => {
 
   const user = getSession();
 
+  const { data: tags } = useGetAllTagsControllerHandle(
+    event
+      ? event?.assignedEventToUsers.filter(
+          (assign) => assign.isOwner === true,
+        )[0]?.user.uuid
+      : user.uuid,
+    {
+      axios: DEFAULT_SETTING_API,
+    },
+  );
+
+  console.log(
+    event?.assignedEventToUsers.filter((assign) => assign.isOwner === true)[0]
+      .user.uuid,
+  );
   const [open, setOpen] = useState(false);
 
   const [inputValue, setInputValue] = useState<string>('');
@@ -178,8 +194,9 @@ export const AddEventForm = ({ event }: Props) => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div
-        className={cn('flex h-64 w-full flex-col items-start gap-2.5', {
-          'text-zinc-400 **:cursor-not-allowed': !thisUserIsOwner,
+        className={cn('flex w-full flex-col items-start gap-2.5', {
+          'h-max text-zinc-400 **:cursor-not-allowed': !thisUserIsOwner,
+          'h-64': thisUserIsOwner,
         })}
       >
         <div className="flex w-full items-center gap-2.5">
@@ -214,12 +231,10 @@ export const AddEventForm = ({ event }: Props) => {
                 className="w-full cursor-pointer border-gray-300"
               >
                 <SelectValue placeholder="Selecione uma etiqueta" />
-
-                {/* {field.value} */}
               </SelectTrigger>
 
               <SelectContent className="flex flex-col items-center gap-2">
-                {tags?.map((tag) => (
+                {tags?.data.map((tag) => (
                   <SelectItem
                     key={tag.uuid}
                     value={JSON.stringify(tag)}
