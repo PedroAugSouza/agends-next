@@ -6,17 +6,33 @@
  * OpenAPI spec version: 1.0
  */
 import axios from 'axios';
-import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type {
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse
+} from 'axios';
 
 import useSwr from 'swr';
-import type { Arguments, Key, SWRConfiguration } from 'swr';
+import type {
+  Arguments,
+  Key,
+  SWRConfiguration
+} from 'swr';
 
 import useSWRMutation from 'swr/mutation';
-import type { SWRMutationConfiguration } from 'swr/mutation';
+import type {
+  SWRMutationConfiguration
+} from 'swr/mutation';
 
-import { faker } from '@faker-js/faker';
+import {
+  faker
+} from '@faker-js/faker';
 
-import { HttpResponse, delay, http } from 'msw';
+import {
+  HttpResponse,
+  delay,
+  http
+} from 'msw';
 
 export interface InputCreateTag {
   name: string;
@@ -57,9 +73,7 @@ export interface InputCreateEvent {
   /** @nullable */
   endsOf: Date | null;
   tagUuid: string;
-  userUuid: string;
-  /** @nullable */
-  assignedUsers: string[] | null;
+  userEmail: string;
 }
 
 export interface InputUpdateEvent {
@@ -91,6 +105,12 @@ export interface InputAuthenticateUser {
 }
 
 export interface OutputGetAllTags {
+  uuid: string;
+  name: string;
+  color: string;
+}
+
+export interface OutputGetByUuid {
   uuid: string;
   name: string;
   color: string;
@@ -164,1181 +184,897 @@ export interface OutputGetAllEventsDTO {
   assignedEventToUsers: AssignedEventsToUsers[];
 }
 
+export interface NotificationsToUsersDTO {
+  isSender: boolean;
+  user: PickTypeClass;
+}
+
+export interface OutputGetAllNotificationsDTO {
+  uuid: string;
+  message: string;
+  NotificationType: string;
+  isRead: boolean;
+  createdAt: string;
+  NotificationsToUSers: NotificationsToUsersDTO[];
+}
+
+export type CreateEventControllerHandle201 = {
+  uuid?: string;
+};
+
 export type AuthenticateUserControllerHandle201 = {
   access_token?: string;
 };
 
 export type GetAllEventsControllerHandleParams = {
-  date: string;
+date: string;
 };
 
 export const createTagsControllerHandle = (
-  inputCreateTag: InputCreateTag,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.post(`http://localhost:8000/tag`, inputCreateTag, options);
-};
+    inputCreateTag: InputCreateTag, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.post(
+      `http://localhost:8000/tag`,
+      inputCreateTag,options
+    );
+  }
 
-export const getCreateTagsControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputCreateTag },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getCreateTagsControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputCreateTag }): Promise<AxiosResponse<void>> => {
     return createTagsControllerHandle(arg, options);
-  };
-};
-export const getCreateTagsControllerHandleMutationKey = () =>
-  [`http://localhost:8000/tag`] as const;
+  }
+}
+export const getCreateTagsControllerHandleMutationKey = () => [`http://localhost:8000/tag`] as const;
 
-export type CreateTagsControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createTagsControllerHandle>>
->;
-export type CreateTagsControllerHandleMutationError = AxiosError<IError>;
+export type CreateTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createTagsControllerHandle>>>
+export type CreateTagsControllerHandleMutationError = AxiosError<IError>
 
-export const useCreateTagsControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof createTagsControllerHandle>>,
-    TError,
-    Key,
-    InputCreateTag,
-    Awaited<ReturnType<typeof createTagsControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useCreateTagsControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof createTagsControllerHandle>>, TError, Key, InputCreateTag, Awaited<ReturnType<typeof createTagsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getCreateTagsControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getCreateTagsControllerHandleMutationKey();
   const swrFn = getCreateTagsControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const removeTagsControllerHandle = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.delete(`http://localhost:8000/tag/${uuid}`, options);
-};
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.delete(
+      `http://localhost:8000/tag/${uuid}`,options
+    );
+  }
 
-export const getRemoveTagsControllerHandleMutationFetcher = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-) => {
+
+
+export const getRemoveTagsControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
   return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
     return removeTagsControllerHandle(uuid, options);
-  };
-};
-export const getRemoveTagsControllerHandleMutationKey = (uuid: string) =>
-  [`http://localhost:8000/tag/${uuid}`] as const;
+  }
+}
+export const getRemoveTagsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/tag/${uuid}`] as const;
 
-export type RemoveTagsControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof removeTagsControllerHandle>>
->;
-export type RemoveTagsControllerHandleMutationError = AxiosError<IError>;
+export type RemoveTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeTagsControllerHandle>>>
+export type RemoveTagsControllerHandleMutationError = AxiosError<IError>
 
 export const useRemoveTagsControllerHandle = <TError = AxiosError<IError>>(
-  uuid: string,
-  options?: {
-    swr?: SWRMutationConfiguration<
-      Awaited<ReturnType<typeof removeTagsControllerHandle>>,
-      TError,
-      Key,
-      Arguments,
-      Awaited<ReturnType<typeof removeTagsControllerHandle>>
-    > & { swrKey?: string };
-    axios?: AxiosRequestConfig;
-  },
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeTagsControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeTagsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
 
-  const swrKey =
-    swrOptions?.swrKey ?? getRemoveTagsControllerHandleMutationKey(uuid);
-  const swrFn = getRemoveTagsControllerHandleMutationFetcher(
-    uuid,
-    axiosOptions,
-  );
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const swrKey = swrOptions?.swrKey ?? getRemoveTagsControllerHandleMutationKey(uuid);
+  const swrFn = getRemoveTagsControllerHandleMutationFetcher(uuid, axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const createHabitControllerHandle = (
-  inputCreateHabit: InputCreateHabit,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.post(`http://localhost:8000/habit`, inputCreateHabit, options);
-};
+    inputCreateHabit: InputCreateHabit, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.post(
+      `http://localhost:8000/habit`,
+      inputCreateHabit,options
+    );
+  }
 
-export const getCreateHabitControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputCreateHabit },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getCreateHabitControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputCreateHabit }): Promise<AxiosResponse<void>> => {
     return createHabitControllerHandle(arg, options);
-  };
-};
-export const getCreateHabitControllerHandleMutationKey = () =>
-  [`http://localhost:8000/habit`] as const;
+  }
+}
+export const getCreateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
 
-export type CreateHabitControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createHabitControllerHandle>>
->;
-export type CreateHabitControllerHandleMutationError = AxiosError<IError>;
+export type CreateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createHabitControllerHandle>>>
+export type CreateHabitControllerHandleMutationError = AxiosError<IError>
 
-export const useCreateHabitControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof createHabitControllerHandle>>,
-    TError,
-    Key,
-    InputCreateHabit,
-    Awaited<ReturnType<typeof createHabitControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useCreateHabitControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof createHabitControllerHandle>>, TError, Key, InputCreateHabit, Awaited<ReturnType<typeof createHabitControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getCreateHabitControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getCreateHabitControllerHandleMutationKey();
   const swrFn = getCreateHabitControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const updateHabitControllerHandle = (
-  inputUpdateHabit: InputUpdateHabit,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.patch(`http://localhost:8000/habit`, inputUpdateHabit, options);
-};
+    inputUpdateHabit: InputUpdateHabit, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.patch(
+      `http://localhost:8000/habit`,
+      inputUpdateHabit,options
+    );
+  }
 
-export const getUpdateHabitControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputUpdateHabit },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getUpdateHabitControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputUpdateHabit }): Promise<AxiosResponse<void>> => {
     return updateHabitControllerHandle(arg, options);
-  };
-};
-export const getUpdateHabitControllerHandleMutationKey = () =>
-  [`http://localhost:8000/habit`] as const;
+  }
+}
+export const getUpdateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
 
-export type UpdateHabitControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateHabitControllerHandle>>
->;
-export type UpdateHabitControllerHandleMutationError = AxiosError<IError>;
+export type UpdateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateHabitControllerHandle>>>
+export type UpdateHabitControllerHandleMutationError = AxiosError<IError>
 
-export const useUpdateHabitControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof updateHabitControllerHandle>>,
-    TError,
-    Key,
-    InputUpdateHabit,
-    Awaited<ReturnType<typeof updateHabitControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useUpdateHabitControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof updateHabitControllerHandle>>, TError, Key, InputUpdateHabit, Awaited<ReturnType<typeof updateHabitControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getUpdateHabitControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getUpdateHabitControllerHandleMutationKey();
   const swrFn = getUpdateHabitControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const removeHabitsControllerHandle = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.delete(`http://localhost:8000/habit/${uuid}`, options);
-};
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.delete(
+      `http://localhost:8000/habit/${uuid}`,options
+    );
+  }
 
-export const getRemoveHabitsControllerHandleMutationFetcher = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-) => {
+
+
+export const getRemoveHabitsControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
   return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
     return removeHabitsControllerHandle(uuid, options);
-  };
-};
-export const getRemoveHabitsControllerHandleMutationKey = (uuid: string) =>
-  [`http://localhost:8000/habit/${uuid}`] as const;
+  }
+}
+export const getRemoveHabitsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
 
-export type RemoveHabitsControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof removeHabitsControllerHandle>>
->;
-export type RemoveHabitsControllerHandleMutationError = AxiosError<IError>;
+export type RemoveHabitsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeHabitsControllerHandle>>>
+export type RemoveHabitsControllerHandleMutationError = AxiosError<IError>
 
 export const useRemoveHabitsControllerHandle = <TError = AxiosError<IError>>(
-  uuid: string,
-  options?: {
-    swr?: SWRMutationConfiguration<
-      Awaited<ReturnType<typeof removeHabitsControllerHandle>>,
-      TError,
-      Key,
-      Arguments,
-      Awaited<ReturnType<typeof removeHabitsControllerHandle>>
-    > & { swrKey?: string };
-    axios?: AxiosRequestConfig;
-  },
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeHabitsControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeHabitsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
 
-  const swrKey =
-    swrOptions?.swrKey ?? getRemoveHabitsControllerHandleMutationKey(uuid);
-  const swrFn = getRemoveHabitsControllerHandleMutationFetcher(
-    uuid,
-    axiosOptions,
-  );
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const swrKey = swrOptions?.swrKey ?? getRemoveHabitsControllerHandleMutationKey(uuid);
+  const swrFn = getRemoveHabitsControllerHandleMutationFetcher(uuid, axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const getHabitByUuidControllerHandle = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<OutputGetHabitByUuidDTO>> => {
-  return axios.get(`http://localhost:8000/habit/${uuid}`, options);
-};
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetHabitByUuidDTO>> => {
+    return axios.get(
+      `http://localhost:8000/habit/${uuid}`,options
+    );
+  }
 
-export const getGetHabitByUuidControllerHandleKey = (uuid: string) =>
-  [`http://localhost:8000/habit/${uuid}`] as const;
 
-export type GetHabitByUuidControllerHandleQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>
->;
-export type GetHabitByUuidControllerHandleQueryError = AxiosError<IError>;
+
+export const getGetHabitByUuidControllerHandleKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
+
+export type GetHabitByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>>
+export type GetHabitByUuidControllerHandleQueryError = AxiosError<IError>
 
 export const useGetHabitByUuidControllerHandle = <TError = AxiosError<IError>>(
-  uuid: string,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    axios?: AxiosRequestConfig;
-  },
+  uuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const isEnabled = swrOptions?.enabled !== false && !!uuid;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() => (isEnabled ? getGetHabitByUuidControllerHandleKey(uuid) : null));
-  const swrFn = () => getHabitByUuidControllerHandle(uuid, axiosOptions);
+  const isEnabled = swrOptions?.enabled !== false && !!(uuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetHabitByUuidControllerHandleKey(uuid) : null);
+  const swrFn = () => getHabitByUuidControllerHandle(uuid, axiosOptions)
 
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const createEventControllerHandle = (
-  inputCreateEvent: InputCreateEvent,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.post(`http://localhost:8000/event`, inputCreateEvent, options);
-};
+    inputCreateEvent: InputCreateEvent, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<CreateEventControllerHandle201>> => {
+    return axios.post(
+      `http://localhost:8000/event`,
+      inputCreateEvent,options
+    );
+  }
 
-export const getCreateEventControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputCreateEvent },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getCreateEventControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputCreateEvent }): Promise<AxiosResponse<CreateEventControllerHandle201>> => {
     return createEventControllerHandle(arg, options);
-  };
-};
-export const getCreateEventControllerHandleMutationKey = () =>
-  [`http://localhost:8000/event`] as const;
+  }
+}
+export const getCreateEventControllerHandleMutationKey = () => [`http://localhost:8000/event`] as const;
 
-export type CreateEventControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createEventControllerHandle>>
->;
-export type CreateEventControllerHandleMutationError = AxiosError<IError>;
+export type CreateEventControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createEventControllerHandle>>>
+export type CreateEventControllerHandleMutationError = AxiosError<IError>
 
-export const useCreateEventControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof createEventControllerHandle>>,
-    TError,
-    Key,
-    InputCreateEvent,
-    Awaited<ReturnType<typeof createEventControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useCreateEventControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof createEventControllerHandle>>, TError, Key, InputCreateEvent, Awaited<ReturnType<typeof createEventControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getCreateEventControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getCreateEventControllerHandleMutationKey();
   const swrFn = getCreateEventControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const updateEventControllerHandle = (
-  inputUpdateEvent: InputUpdateEvent,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.patch(`http://localhost:8000/event`, inputUpdateEvent, options);
-};
+    inputUpdateEvent: InputUpdateEvent, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.patch(
+      `http://localhost:8000/event`,
+      inputUpdateEvent,options
+    );
+  }
 
-export const getUpdateEventControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputUpdateEvent },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getUpdateEventControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputUpdateEvent }): Promise<AxiosResponse<void>> => {
     return updateEventControllerHandle(arg, options);
-  };
-};
-export const getUpdateEventControllerHandleMutationKey = () =>
-  [`http://localhost:8000/event`] as const;
+  }
+}
+export const getUpdateEventControllerHandleMutationKey = () => [`http://localhost:8000/event`] as const;
 
-export type UpdateEventControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateEventControllerHandle>>
->;
-export type UpdateEventControllerHandleMutationError = AxiosError<IError>;
+export type UpdateEventControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateEventControllerHandle>>>
+export type UpdateEventControllerHandleMutationError = AxiosError<IError>
 
-export const useUpdateEventControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof updateEventControllerHandle>>,
-    TError,
-    Key,
-    InputUpdateEvent,
-    Awaited<ReturnType<typeof updateEventControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useUpdateEventControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof updateEventControllerHandle>>, TError, Key, InputUpdateEvent, Awaited<ReturnType<typeof updateEventControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getUpdateEventControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getUpdateEventControllerHandleMutationKey();
   const swrFn = getUpdateEventControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const removeEventsControllerHandle = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.delete(`http://localhost:8000/event/${uuid}`, options);
-};
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.delete(
+      `http://localhost:8000/event/${uuid}`,options
+    );
+  }
 
-export const getRemoveEventsControllerHandleMutationFetcher = (
-  uuid: string,
-  options?: AxiosRequestConfig,
-) => {
+
+
+export const getRemoveEventsControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
   return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
     return removeEventsControllerHandle(uuid, options);
-  };
-};
-export const getRemoveEventsControllerHandleMutationKey = (uuid: string) =>
-  [`http://localhost:8000/event/${uuid}`] as const;
+  }
+}
+export const getRemoveEventsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/event/${uuid}`] as const;
 
-export type RemoveEventsControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof removeEventsControllerHandle>>
->;
-export type RemoveEventsControllerHandleMutationError = AxiosError<IError>;
+export type RemoveEventsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeEventsControllerHandle>>>
+export type RemoveEventsControllerHandleMutationError = AxiosError<IError>
 
 export const useRemoveEventsControllerHandle = <TError = AxiosError<IError>>(
-  uuid: string,
-  options?: {
-    swr?: SWRMutationConfiguration<
-      Awaited<ReturnType<typeof removeEventsControllerHandle>>,
-      TError,
-      Key,
-      Arguments,
-      Awaited<ReturnType<typeof removeEventsControllerHandle>>
-    > & { swrKey?: string };
-    axios?: AxiosRequestConfig;
-  },
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeEventsControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeEventsControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
 
-  const swrKey =
-    swrOptions?.swrKey ?? getRemoveEventsControllerHandleMutationKey(uuid);
-  const swrFn = getRemoveEventsControllerHandleMutationFetcher(
-    uuid,
-    axiosOptions,
-  );
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const swrKey = swrOptions?.swrKey ?? getRemoveEventsControllerHandleMutationKey(uuid);
+  const swrFn = getRemoveEventsControllerHandleMutationFetcher(uuid, axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const removeAssignmentControllerHandle = (
-  userUuid: string,
-  eventUuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.delete(
-    `http://localhost:8000/remove-assignment/${userUuid}/${eventUuid}`,
-    options,
-  );
-};
+    userEmail: string,
+    eventUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.delete(
+      `http://localhost:8000/remove-assignment/${userEmail}/${eventUuid}`,options
+    );
+  }
 
-export const getRemoveAssignmentControllerHandleMutationFetcher = (
-  userUuid: string,
-  eventUuid: string,
-  options?: AxiosRequestConfig,
-) => {
+
+
+export const getRemoveAssignmentControllerHandleMutationFetcher = (userEmail: string,
+    eventUuid: string, options?: AxiosRequestConfig) => {
   return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
-    return removeAssignmentControllerHandle(userUuid, eventUuid, options);
-  };
-};
-export const getRemoveAssignmentControllerHandleMutationKey = (
-  userUuid: string,
-  eventUuid: string,
-) =>
-  [`http://localhost:8000/remove-assignment/${userUuid}/${eventUuid}`] as const;
+    return removeAssignmentControllerHandle(userEmail, eventUuid, options);
+  }
+}
+export const getRemoveAssignmentControllerHandleMutationKey = (userEmail: string,
+    eventUuid: string,) => [`http://localhost:8000/remove-assignment/${userEmail}/${eventUuid}`] as const;
 
-export type RemoveAssignmentControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof removeAssignmentControllerHandle>>
->;
-export type RemoveAssignmentControllerHandleMutationError = AxiosError<unknown>;
+export type RemoveAssignmentControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeAssignmentControllerHandle>>>
+export type RemoveAssignmentControllerHandleMutationError = AxiosError<IError>
 
-export const useRemoveAssignmentControllerHandle = <
-  TError = AxiosError<unknown>,
->(
-  userUuid: string,
-  eventUuid: string,
-  options?: {
-    swr?: SWRMutationConfiguration<
-      Awaited<ReturnType<typeof removeAssignmentControllerHandle>>,
-      TError,
-      Key,
-      Arguments,
-      Awaited<ReturnType<typeof removeAssignmentControllerHandle>>
-    > & { swrKey?: string };
-    axios?: AxiosRequestConfig;
-  },
+export const useRemoveAssignmentControllerHandle = <TError = AxiosError<IError>>(
+  userEmail: string,
+    eventUuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeAssignmentControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeAssignmentControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
 
-  const swrKey =
-    swrOptions?.swrKey ??
-    getRemoveAssignmentControllerHandleMutationKey(userUuid, eventUuid);
-  const swrFn = getRemoveAssignmentControllerHandleMutationFetcher(
-    userUuid,
-    eventUuid,
-    axiosOptions,
-  );
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const swrKey = swrOptions?.swrKey ?? getRemoveAssignmentControllerHandleMutationKey(userEmail,eventUuid);
+  const swrFn = getRemoveAssignmentControllerHandleMutationFetcher(userEmail,eventUuid, axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
+
+export const markAsReadNotificationControllerHandle = (
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.patch(
+      `http://localhost:8000/notification/mask-as-read/${uuid}`,undefined,options
+    );
+  }
+
+
+
+export const getMarkAsReadNotificationControllerHandleMutationFetcher = (uuid: string, options?: AxiosRequestConfig) => {
+  return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
+    return markAsReadNotificationControllerHandle(uuid, options);
+  }
+}
+export const getMarkAsReadNotificationControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/notification/mask-as-read/${uuid}`] as const;
+
+export type MarkAsReadNotificationControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof markAsReadNotificationControllerHandle>>>
+export type MarkAsReadNotificationControllerHandleMutationError = AxiosError<IError>
+
+export const useMarkAsReadNotificationControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof markAsReadNotificationControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof markAsReadNotificationControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
+
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getMarkAsReadNotificationControllerHandleMutationKey(uuid);
+  const swrFn = getMarkAsReadNotificationControllerHandleMutationFetcher(uuid, axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
 
 export const registerUserControllerHandle = (
-  inputRegisterUser: InputRegisterUser,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<void>> => {
-  return axios.post(
-    `http://localhost:8000/register`,
-    inputRegisterUser,
-    options,
-  );
-};
+    inputRegisterUser: InputRegisterUser, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axios.post(
+      `http://localhost:8000/register`,
+      inputRegisterUser,options
+    );
+  }
 
-export const getRegisterUserControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputRegisterUser },
-  ): Promise<AxiosResponse<void>> => {
+
+
+export const getRegisterUserControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputRegisterUser }): Promise<AxiosResponse<void>> => {
     return registerUserControllerHandle(arg, options);
-  };
-};
-export const getRegisterUserControllerHandleMutationKey = () =>
-  [`http://localhost:8000/register`] as const;
+  }
+}
+export const getRegisterUserControllerHandleMutationKey = () => [`http://localhost:8000/register`] as const;
 
-export type RegisterUserControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof registerUserControllerHandle>>
->;
-export type RegisterUserControllerHandleMutationError = AxiosError<IError>;
+export type RegisterUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof registerUserControllerHandle>>>
+export type RegisterUserControllerHandleMutationError = AxiosError<IError>
 
-export const useRegisterUserControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof registerUserControllerHandle>>,
-    TError,
-    Key,
-    InputRegisterUser,
-    Awaited<ReturnType<typeof registerUserControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useRegisterUserControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof registerUserControllerHandle>>, TError, Key, InputRegisterUser, Awaited<ReturnType<typeof registerUserControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getRegisterUserControllerHandleMutationKey();
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const swrKey = swrOptions?.swrKey ?? getRegisterUserControllerHandleMutationKey();
   const swrFn = getRegisterUserControllerHandleMutationFetcher(axiosOptions);
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const authenticateUserControllerHandle = (
-  inputAuthenticateUser: InputAuthenticateUser,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
-  return axios.post(
-    `http://localhost:8000/login`,
-    inputAuthenticateUser,
-    options,
-  );
-};
+    inputAuthenticateUser: InputAuthenticateUser, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
+    return axios.post(
+      `http://localhost:8000/login`,
+      inputAuthenticateUser,options
+    );
+  }
 
-export const getAuthenticateUserControllerHandleMutationFetcher = (
-  options?: AxiosRequestConfig,
-) => {
-  return (
-    _: Key,
-    { arg }: { arg: InputAuthenticateUser },
-  ): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
+
+
+export const getAuthenticateUserControllerHandleMutationFetcher = ( options?: AxiosRequestConfig) => {
+  return (_: Key, { arg }: { arg: InputAuthenticateUser }): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
     return authenticateUserControllerHandle(arg, options);
-  };
-};
-export const getAuthenticateUserControllerHandleMutationKey = () =>
-  [`http://localhost:8000/login`] as const;
+  }
+}
+export const getAuthenticateUserControllerHandleMutationKey = () => [`http://localhost:8000/login`] as const;
 
-export type AuthenticateUserControllerHandleMutationResult = NonNullable<
-  Awaited<ReturnType<typeof authenticateUserControllerHandle>>
->;
-export type AuthenticateUserControllerHandleMutationError = AxiosError<IError>;
+export type AuthenticateUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof authenticateUserControllerHandle>>>
+export type AuthenticateUserControllerHandleMutationError = AxiosError<IError>
 
-export const useAuthenticateUserControllerHandle = <
-  TError = AxiosError<IError>,
->(options?: {
-  swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof authenticateUserControllerHandle>>,
-    TError,
-    Key,
-    InputAuthenticateUser,
-    Awaited<ReturnType<typeof authenticateUserControllerHandle>>
-  > & { swrKey?: string };
-  axios?: AxiosRequestConfig;
-}) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+export const useAuthenticateUserControllerHandle = <TError = AxiosError<IError>>(
+   options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof authenticateUserControllerHandle>>, TError, Key, InputAuthenticateUser, Awaited<ReturnType<typeof authenticateUserControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
+) => {
 
-  const swrKey =
-    swrOptions?.swrKey ?? getAuthenticateUserControllerHandleMutationKey();
-  const swrFn =
-    getAuthenticateUserControllerHandleMutationFetcher(axiosOptions);
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+  const swrKey = swrOptions?.swrKey ?? getAuthenticateUserControllerHandleMutationKey();
+  const swrFn = getAuthenticateUserControllerHandleMutationFetcher(axiosOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const getAllTagsControllerHandle = (
-  userUuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<OutputGetAllTags[]>> => {
-  return axios.get(`http://localhost:8000/tags/${userUuid}`, options);
-};
+    userUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllTags[]>> => {
+    return axios.get(
+      `http://localhost:8000/tags/${userUuid}`,options
+    );
+  }
 
-export const getGetAllTagsControllerHandleKey = (userUuid: string) =>
-  [`http://localhost:8000/tags/${userUuid}`] as const;
 
-export type GetAllTagsControllerHandleQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllTagsControllerHandle>>
->;
-export type GetAllTagsControllerHandleQueryError = AxiosError<IError>;
+
+export const getGetAllTagsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/tags/${userUuid}`] as const;
+
+export type GetAllTagsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllTagsControllerHandle>>>
+export type GetAllTagsControllerHandleQueryError = AxiosError<IError>
 
 export const useGetAllTagsControllerHandle = <TError = AxiosError<IError>>(
-  userUuid: string,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof getAllTagsControllerHandle>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    axios?: AxiosRequestConfig;
-  },
+  userUuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllTagsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const isEnabled = swrOptions?.enabled !== false && !!userUuid;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() => (isEnabled ? getGetAllTagsControllerHandleKey(userUuid) : null));
-  const swrFn = () => getAllTagsControllerHandle(userUuid, axiosOptions);
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllTagsControllerHandleKey(userUuid) : null);
+  const swrFn = () => getAllTagsControllerHandle(userUuid, axiosOptions)
 
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
+
+export const getTagByUuidControllerHandle = (
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetByUuid>> => {
+    return axios.get(
+      `http://localhost:8000/tags/by/${uuid}`,options
+    );
+  }
+
+
+
+export const getGetTagByUuidControllerHandleKey = (uuid: string,) => [`http://localhost:8000/tags/by/${uuid}`] as const;
+
+export type GetTagByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getTagByUuidControllerHandle>>>
+export type GetTagByUuidControllerHandleQueryError = AxiosError<IError>
+
+export const useGetTagByUuidControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getTagByUuidControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
+) => {
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const isEnabled = swrOptions?.enabled !== false && !!(uuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetTagByUuidControllerHandleKey(uuid) : null);
+  const swrFn = () => getTagByUuidControllerHandle(uuid, axiosOptions)
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
 
 export const getAllHabitsControllerHandle = (
-  userUuid: string,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<OutputGetAllHabitsDTO[]>> => {
-  return axios.get(`http://localhost:8000/habit/${userUuid}`, options);
-};
+    userUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllHabitsDTO[]>> => {
+    return axios.get(
+      `http://localhost:8000/habit/${userUuid}`,options
+    );
+  }
 
-export const getGetAllHabitsControllerHandleKey = (userUuid: string) =>
-  [`http://localhost:8000/habit/${userUuid}`] as const;
 
-export type GetAllHabitsControllerHandleQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllHabitsControllerHandle>>
->;
-export type GetAllHabitsControllerHandleQueryError = AxiosError<IError>;
+
+export const getGetAllHabitsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/habit/${userUuid}`] as const;
+
+export type GetAllHabitsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllHabitsControllerHandle>>>
+export type GetAllHabitsControllerHandleQueryError = AxiosError<IError>
 
 export const useGetAllHabitsControllerHandle = <TError = AxiosError<IError>>(
-  userUuid: string,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof getAllHabitsControllerHandle>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    axios?: AxiosRequestConfig;
-  },
+  userUuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllHabitsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const isEnabled = swrOptions?.enabled !== false && !!userUuid;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() => (isEnabled ? getGetAllHabitsControllerHandleKey(userUuid) : null));
-  const swrFn = () => getAllHabitsControllerHandle(userUuid, axiosOptions);
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllHabitsControllerHandleKey(userUuid) : null);
+  const swrFn = () => getAllHabitsControllerHandle(userUuid, axiosOptions)
 
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
 export const getAllEventsControllerHandle = (
-  userUuid: string,
-  params: GetAllEventsControllerHandleParams,
-  options?: AxiosRequestConfig,
-): Promise<AxiosResponse<OutputGetAllEventsDTO[]>> => {
-  return axios.get(`http://localhost:8000/events/${userUuid}`, {
+    userUuid: string,
+    params: GetAllEventsControllerHandleParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllEventsDTO[]>> => {
+    return axios.get(
+      `http://localhost:8000/events/${userUuid}`,{
     ...options,
-    params: { ...params, ...options?.params },
-  });
-};
+        params: {...params, ...options?.params},}
+    );
+  }
 
-export const getGetAllEventsControllerHandleKey = (
-  userUuid: string,
-  params: GetAllEventsControllerHandleParams,
-) =>
-  [
-    `http://localhost:8000/events/${userUuid}`,
-    ...(params ? [params] : []),
-  ] as const;
 
-export type GetAllEventsControllerHandleQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllEventsControllerHandle>>
->;
-export type GetAllEventsControllerHandleQueryError = AxiosError<IError>;
+
+export const getGetAllEventsControllerHandleKey = (userUuid: string,
+    params: GetAllEventsControllerHandleParams,) => [`http://localhost:8000/events/${userUuid}`, ...(params ? [params]: [])] as const;
+
+export type GetAllEventsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllEventsControllerHandle>>>
+export type GetAllEventsControllerHandleQueryError = AxiosError<IError>
 
 export const useGetAllEventsControllerHandle = <TError = AxiosError<IError>>(
   userUuid: string,
-  params: GetAllEventsControllerHandleParams,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof getAllEventsControllerHandle>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    axios?: AxiosRequestConfig;
-  },
+    params: GetAllEventsControllerHandleParams, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllEventsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
 ) => {
-  const { swr: swrOptions, axios: axiosOptions } = options ?? {};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-  const isEnabled = swrOptions?.enabled !== false && !!userUuid;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() =>
-      isEnabled ? getGetAllEventsControllerHandleKey(userUuid, params) : null);
-  const swrFn = () =>
-    getAllEventsControllerHandle(userUuid, params, axiosOptions);
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllEventsControllerHandleKey(userUuid,params) : null);
+  const swrFn = () => getAllEventsControllerHandle(userUuid,params, axiosOptions)
 
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
   return {
     swrKey,
-    ...query,
-  };
-};
+    ...query
+  }
+}
 
-export const getGetHabitByUuidControllerHandleResponseMock = (
-  overrideResponse: Partial<OutputGetHabitByUuidDTO> = {},
-): OutputGetHabitByUuidDTO => ({
-  name: faker.string.alpha(20),
-  uuid: faker.string.alpha(20),
-  color: faker.string.alpha(20),
-  userUuid: faker.string.alpha(20),
-  dayHabit: Array.from(
-    { length: faker.number.int({ min: 1, max: 10 }) },
-    (_, i) => i + 1,
-  ).map(() => faker.string.alpha(20)),
-  ...overrideResponse,
-});
-
-export const getAuthenticateUserControllerHandleResponseMock = (
-  overrideResponse: Partial<AuthenticateUserControllerHandle201> = {},
-): AuthenticateUserControllerHandle201 => ({
-  access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
-  ...overrideResponse,
-});
-
-export const getGetAllTagsControllerHandleResponseMock =
-  (): OutputGetAllTags[] =>
-    Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      uuid: faker.string.alpha(20),
-      name: faker.string.alpha(20),
-      color: faker.string.alpha(20),
-    }));
-
-export const getGetAllHabitsControllerHandleResponseMock =
-  (): OutputGetAllHabitsDTO[] =>
-    Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      name: faker.string.alpha(20),
-      color: faker.string.alpha(20),
-      userUuid: faker.string.alpha(20),
-    }));
-
-export const getGetAllEventsControllerHandleResponseMock =
-  (): OutputGetAllEventsDTO[] =>
-    Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      uuid: faker.string.alpha(20),
-      name: faker.string.alpha(20),
-      allDay: faker.datatype.boolean(),
-      date: `${faker.date.past().toISOString().split('.')[0]}Z`,
-      startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
-      endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
-      tag: {
-        uuid: faker.string.alpha(20),
-        name: faker.string.alpha(20),
-        color: faker.string.alpha(20),
-        userUuid: faker.string.alpha(20),
-        events: Array.from(
-          { length: faker.number.int({ min: 1, max: 10 }) },
-          (_, i) => i + 1,
-        ).map(() => faker.string.alpha(20)),
-      },
-      assignedEventToUsers: Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        uuid: faker.string.alpha(20),
-        isOwner: faker.datatype.boolean(),
-        eventUuid: faker.string.alpha(20),
-        userUuid: faker.string.alpha(20),
-        user: {
-          uuid: faker.string.alpha(20),
-          name: faker.string.alpha(20),
-          email: faker.string.alpha(20),
-        },
-        event: {
-          uuid: faker.string.alpha(20),
-          name: faker.string.alpha(20),
-          allDay: faker.datatype.boolean(),
-          date: `${faker.date.past().toISOString().split('.')[0]}Z`,
-          startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
-          endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`,
-          tagUuid: faker.string.alpha(20),
-          Tag: {
-            ...{
-              uuid: faker.string.alpha(20),
-              name: faker.string.alpha(20),
-              color: faker.string.alpha(20),
-              userUuid: faker.string.alpha(20),
-              events: Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-            },
-          },
-          createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`,
-          updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`,
-        },
-      })),
-    }));
-
-export const getCreateTagsControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.post('*/tag', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 201 });
-  });
-};
-
-export const getRemoveTagsControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.delete>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.delete('*/tag/:uuid', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
-
-export const getCreateHabitControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.post('*/habit', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 201 });
-  });
-};
-
-export const getUpdateHabitControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.patch>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.patch('*/habit', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
-
-export const getRemoveHabitsControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.delete>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.delete('*/habit/:uuid', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
-
-export const getGetHabitByUuidControllerHandleMockHandler = (
-  overrideResponse?:
-    | OutputGetHabitByUuidDTO
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<OutputGetHabitByUuidDTO> | OutputGetHabitByUuidDTO),
-) => {
-  return http.get('*/habit/:uuid', async (info) => {
-    await delay(1000);
-
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === 'function'
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getGetHabitByUuidControllerHandleResponseMock(),
-      ),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+export const getAllNotificationsControllerHandle = (
+    userUuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetAllNotificationsDTO[]>> => {
+    return axios.get(
+      `http://localhost:8000/notifications/${userUuid}`,options
     );
-  });
-};
+  }
 
-export const getCreateEventControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<void> | void),
+
+
+export const getGetAllNotificationsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/notifications/${userUuid}`] as const;
+
+export type GetAllNotificationsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllNotificationsControllerHandle>>>
+export type GetAllNotificationsControllerHandleQueryError = AxiosError<IError>
+
+export const useGetAllNotificationsControllerHandle = <TError = AxiosError<IError>>(
+  userUuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getAllNotificationsControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
 ) => {
-  return http.post('*/event', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 201 });
-  });
-};
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
 
-export const getUpdateEventControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.patch>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.patch('*/event', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
+  const isEnabled = swrOptions?.enabled !== false && !!(userUuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetAllNotificationsControllerHandleKey(userUuid) : null);
+  const swrFn = () => getAllNotificationsControllerHandle(userUuid, axiosOptions)
 
-export const getRemoveEventsControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.delete>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.delete('*/event/:uuid', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
 
-export const getRemoveAssignmentControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.delete>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.delete(
-    '*/remove-assignment/:userUuid/:eventUuid',
-    async (info) => {
-      await delay(1000);
-      if (typeof overrideResponse === 'function') {
-        await overrideResponse(info);
-      }
-      return new HttpResponse(null, { status: 200 });
-    },
-  );
-};
+  return {
+    swrKey,
+    ...query
+  }
+}
 
-export const getRegisterUserControllerHandleMockHandler = (
-  overrideResponse?:
-    | void
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<void> | void),
-) => {
-  return http.post('*/register', async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === 'function') {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 201 });
-  });
-};
 
-export const getAuthenticateUserControllerHandleMockHandler = (
-  overrideResponse?:
-    | AuthenticateUserControllerHandle201
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) =>
-        | Promise<AuthenticateUserControllerHandle201>
-        | AuthenticateUserControllerHandle201),
-) => {
-  return http.post('*/login', async (info) => {
-    await delay(1000);
+export const getGetHabitByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetHabitByUuidDTO > = {}): OutputGetHabitByUuidDTO => ({name: faker.string.alpha(20), uuid: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), dayHabit: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20))), ...overrideResponse})
 
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === 'function'
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getAuthenticateUserControllerHandleResponseMock(),
-      ),
-      { status: 201, headers: { 'Content-Type': 'application/json' } },
-    );
-  });
-};
+export const getCreateEventControllerHandleResponseMock = (overrideResponse: Partial< CreateEventControllerHandle201 > = {}): CreateEventControllerHandle201 => ({uuid: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
 
-export const getGetAllTagsControllerHandleMockHandler = (
-  overrideResponse?:
-    | OutputGetAllTags[]
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<OutputGetAllTags[]> | OutputGetAllTags[]),
-) => {
-  return http.get('*/tags/:userUuid', async (info) => {
-    await delay(1000);
+export const getAuthenticateUserControllerHandleResponseMock = (overrideResponse: Partial< AuthenticateUserControllerHandle201 > = {}): AuthenticateUserControllerHandle201 => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
 
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === 'function'
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getGetAllTagsControllerHandleResponseMock(),
-      ),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
-    );
-  });
-};
+export const getGetAllTagsControllerHandleResponseMock = (): OutputGetAllTags[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20)})))
 
-export const getGetAllHabitsControllerHandleMockHandler = (
-  overrideResponse?:
-    | OutputGetAllHabitsDTO[]
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<OutputGetAllHabitsDTO[]> | OutputGetAllHabitsDTO[]),
-) => {
-  return http.get('*/habit/:userUuid', async (info) => {
-    await delay(1000);
+export const getGetTagByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetByUuid > = {}): OutputGetByUuid => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), ...overrideResponse})
 
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === 'function'
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getGetAllHabitsControllerHandleResponseMock(),
-      ),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
-    );
-  });
-};
+export const getGetAllHabitsControllerHandleResponseMock = (): OutputGetAllHabitsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20)})))
 
-export const getGetAllEventsControllerHandleMockHandler = (
-  overrideResponse?:
-    | OutputGetAllEventsDTO[]
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<OutputGetAllEventsDTO[]> | OutputGetAllEventsDTO[]),
-) => {
-  return http.get('*/events/:userUuid', async (info) => {
-    await delay(1000);
+export const getGetAllEventsControllerHandleResponseMock = (): OutputGetAllEventsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), allDay: faker.datatype.boolean(), date: `${faker.date.past().toISOString().split('.')[0]}Z`, startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, tag: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), events: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20)))}, assignedEventToUsers: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), isOwner: faker.datatype.boolean(), eventUuid: faker.string.alpha(20), userUuid: faker.string.alpha(20), user: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), email: faker.string.alpha(20)}, event: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), allDay: faker.datatype.boolean(), date: `${faker.date.past().toISOString().split('.')[0]}Z`, startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, tagUuid: faker.string.alpha(20), Tag: {...{uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), events: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20)))},}, createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}}))})))
 
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === 'function'
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getGetAllEventsControllerHandleResponseMock(),
-      ),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
-    );
-  });
-};
+export const getGetAllNotificationsControllerHandleResponseMock = (): OutputGetAllNotificationsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), message: faker.string.alpha(20), NotificationType: faker.string.alpha(20), isRead: faker.datatype.boolean(), createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, NotificationsToUSers: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({isSender: faker.datatype.boolean(), user: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), email: faker.string.alpha(20)}}))})))
+
+
+export const getCreateTagsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/tag', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
+export const getRemoveTagsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/tag/:uuid', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getCreateHabitControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/habit', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
+export const getUpdateHabitControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/habit', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getRemoveHabitsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/habit/:uuid', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getGetHabitByUuidControllerHandleMockHandler = (overrideResponse?: OutputGetHabitByUuidDTO | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetHabitByUuidDTO> | OutputGetHabitByUuidDTO)) => {
+  return http.get('*/habit/:uuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetHabitByUuidControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getCreateEventControllerHandleMockHandler = (overrideResponse?: CreateEventControllerHandle201 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<CreateEventControllerHandle201> | CreateEventControllerHandle201)) => {
+  return http.post('*/event', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getCreateEventControllerHandleResponseMock()),
+      { status: 201,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getUpdateEventControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/event', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getRemoveEventsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/event/:uuid', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getRemoveAssignmentControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
+  return http.delete('*/remove-assignment/:userEmail/:eventUuid', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getMarkAsReadNotificationControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.patch>[1]>[0]) => Promise<void> | void)) => {
+  return http.patch('*/notification/mask-as-read/:uuid', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 200,
+        
+      })
+  })
+}
+
+export const getRegisterUserControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<void> | void)) => {
+  return http.post('*/register', async (info) => {await delay(1000);
+  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
+    return new HttpResponse(null,
+      { status: 201,
+        
+      })
+  })
+}
+
+export const getAuthenticateUserControllerHandleMockHandler = (overrideResponse?: AuthenticateUserControllerHandle201 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<AuthenticateUserControllerHandle201> | AuthenticateUserControllerHandle201)) => {
+  return http.post('*/login', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getAuthenticateUserControllerHandleResponseMock()),
+      { status: 201,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetAllTagsControllerHandleMockHandler = (overrideResponse?: OutputGetAllTags[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllTags[]> | OutputGetAllTags[])) => {
+  return http.get('*/tags/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllTagsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetTagByUuidControllerHandleMockHandler = (overrideResponse?: OutputGetByUuid | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetByUuid> | OutputGetByUuid)) => {
+  return http.get('*/tags/by/:uuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetTagByUuidControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetAllHabitsControllerHandleMockHandler = (overrideResponse?: OutputGetAllHabitsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllHabitsDTO[]> | OutputGetAllHabitsDTO[])) => {
+  return http.get('*/habit/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllHabitsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetAllEventsControllerHandleMockHandler = (overrideResponse?: OutputGetAllEventsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllEventsDTO[]> | OutputGetAllEventsDTO[])) => {
+  return http.get('*/events/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllEventsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetAllNotificationsControllerHandleMockHandler = (overrideResponse?: OutputGetAllNotificationsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllNotificationsDTO[]> | OutputGetAllNotificationsDTO[])) => {
+  return http.get('*/notifications/:userUuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetAllNotificationsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
 export const getExampleTitleMock = () => [
   getCreateTagsControllerHandleMockHandler(),
   getRemoveTagsControllerHandleMockHandler(),
@@ -1350,9 +1086,12 @@ export const getExampleTitleMock = () => [
   getUpdateEventControllerHandleMockHandler(),
   getRemoveEventsControllerHandleMockHandler(),
   getRemoveAssignmentControllerHandleMockHandler(),
+  getMarkAsReadNotificationControllerHandleMockHandler(),
   getRegisterUserControllerHandleMockHandler(),
   getAuthenticateUserControllerHandleMockHandler(),
   getGetAllTagsControllerHandleMockHandler(),
+  getGetTagByUuidControllerHandleMockHandler(),
   getGetAllHabitsControllerHandleMockHandler(),
   getGetAllEventsControllerHandleMockHandler(),
-];
+  getGetAllNotificationsControllerHandleMockHandler()
+]

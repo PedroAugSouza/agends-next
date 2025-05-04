@@ -186,6 +186,12 @@ paths:
       responses:
         '201':
           description: Event created
+          content:
+            application/json:
+              schema:
+                properties:
+                  uuid:
+                    type: string
         5XX:
           description: Internal server error
           content:
@@ -258,11 +264,11 @@ paths:
         - bearer: []
       tags:
         - Remove Event
-  /remove-assignment/{userUuid}/{eventUuid}:
+  /remove-assignment/{userEmail}/{eventUuid}:
     delete:
       operationId: RemoveAssignmentController_handle
       parameters:
-        - name: userUuid
+        - name: userEmail
           required: true
           in: path
           schema:
@@ -274,9 +280,51 @@ paths:
             type: string
       responses:
         '200':
-          description: ''
+          description: Assignment Removed
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
       tags:
-        - RemoveAssignment
+        - Remove Assignment
+  /notification/mask-as-read/{uuid}:
+    patch:
+      operationId: MarkAsReadNotificationController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification is read
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Mark As Read Notification
   /register:
     post:
       operationId: RegisterUserController_handle
@@ -371,6 +419,38 @@ paths:
         - bearer: []
       tags:
         - Get All Tags Controller
+  /tags/by/{uuid}:
+    get:
+      operationId: GetTagByUuidController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag finded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Output Get By Uuid'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get Tag By Uuid
   /habit/{userUuid}:
     get:
       operationId: GetAllHabitsController_handle
@@ -444,6 +524,40 @@ paths:
         - bearer: []
       tags:
         - Get All Events
+  /notifications/{userUuid}:
+    get:
+      operationId: GetAllNotificationsController_handle
+      parameters:
+        - name: userUuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notifications finded
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OutputGetAllNotificationsDTO'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get All Notifications
 info:
   title: Example title
   description: Description for api
@@ -539,13 +653,8 @@ components:
           nullable: true
         tagUuid:
           type: string
-        userUuid:
+        userEmail:
           type: string
-        assignedUsers:
-          nullable: true
-          type: array
-          items:
-            type: string
       required:
         - name
         - allDay
@@ -553,8 +662,7 @@ components:
         - startsOf
         - endsOf
         - tagUuid
-        - userUuid
-        - assignedUsers
+        - userEmail
     Input Update Event:
       type: object
       properties:
@@ -617,6 +725,19 @@ components:
         - email
         - password
     Output Get All Tags:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+      required:
+        - uuid
+        - name
+        - color
+    Output Get By Uuid:
       type: object
       properties:
         uuid:
@@ -795,3 +916,38 @@ components:
         - endsOf
         - tag
         - assignedEventToUsers
+    NotificationsToUsersDTO:
+      type: object
+      properties:
+        isSender:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/PickTypeClass'
+      required:
+        - isSender
+        - user
+    OutputGetAllNotificationsDTO:
+      type: object
+      properties:
+        uuid:
+          type: string
+        message:
+          type: string
+        NotificationType:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+        NotificationsToUSers:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationsToUsersDTO'
+      required:
+        - uuid
+        - message
+        - NotificationType
+        - isRead
+        - createdAt
+        - NotificationsToUSers

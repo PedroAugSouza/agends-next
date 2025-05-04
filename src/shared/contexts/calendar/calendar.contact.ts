@@ -15,6 +15,18 @@ export interface InputUpdateEvent extends InputCreateEvent {
   uuid: string;
 }
 
+export interface AssignUsersPayload {
+  eventUuid: string;
+  userEmail: string;
+  ownerEmail: string;
+}
+
+export interface RemoveAssignmentUserPayload {
+  eventUuid: string;
+  userEmail: string;
+  ownerEmail: string;
+}
+
 export type InputCreateTag = z.infer<typeof addTagSchema>;
 
 export type InputCreateHabit = z.infer<typeof addHabitSchema>;

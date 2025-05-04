@@ -34,7 +34,7 @@ export const WeekCalendar = () => {
   };
 
   return (
-    <div className="flex h-full flex-1 grow flex-col items-start justify-start gap-2 px-2.5">
+    <div className="flex h-full flex-1 flex-col items-start justify-start gap-2 overflow-auto px-2.5">
       <header className="flex w-full items-center border-b pr-2.5 pl-16">
         <div className="flex w-full items-end justify-end gap-2.5 px-2.5 py-2">
           {getDaysInWeek(getWeek(currentDate)).map((date) => (
@@ -58,12 +58,12 @@ export const WeekCalendar = () => {
           ))}
         </div>
       </header>
-      <section className="flex w-full grow items-start justify-start px-2.5">
-        <div className="flex h-full w-14 flex-col items-center border-r">
+      <section className="flex w-full items-start justify-start overflow-auto px-2.5">
+        <div className="grid h-full w-14 flex-none grid-rows-24 border-r">
           {Array.from({ length: 24 }, (_, i) => (
-            <span key={i} className="h-9 w-full text-gray-700">
+            <div key={i} className="h-9 w-full flex-none text-gray-700">
               {i}h
-            </span>
+            </div>
           ))}
         </div>
 

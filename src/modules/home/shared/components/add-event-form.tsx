@@ -53,6 +53,7 @@ import {
 import { useState } from 'react';
 import { useCalendar } from '@/shared/hooks/useCalendar';
 import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
+import { socket } from '@/shared/lib/socket';
 
 type FormType = z.infer<typeof addEventSchema>;
 
@@ -118,11 +119,6 @@ export const AddEventForm = ({ event }: Props) => {
       axios: DEFAULT_SETTING_API,
     },
   );
-
-  console.log(
-    event?.assignedEventToUsers.filter((assign) => assign.isOwner === true)[0]
-      .user.uuid,
-  );
   const [open, setOpen] = useState(false);
 
   const [inputValue, setInputValue] = useState<string>('');
@@ -176,17 +172,20 @@ export const AddEventForm = ({ event }: Props) => {
   };
 
   const thisUserIsOwner = event
-    ? event.assignedEventToUsers.filter(
+    ? event.assignedEventToUsers?.filter(
         (assign) => assign.user.uuid === user.uuid,
       )[0].isOwner
     : true;
 
-  const fieldsFiltered = watch('asssignedUsers').filter(
-    (value) =>
-      value.user !==
-        event?.assignedEventToUsers.filter((assigned) => assigned.isOwner)[0]
-          ?.user?.email || '',
-  );
+  const fieldsFiltered = watch('asssignedUsers')
+    ? watch('asssignedUsers').filter(
+        (value) =>
+          value.user !==
+            event?.assignedEventToUsers?.filter(
+              (assigned) => assigned.isOwner,
+            )[0]?.user?.email || '',
+      )
+    : fields;
 
   return (
     <form
@@ -228,6 +227,7 @@ export const AddEventForm = ({ event }: Props) => {
                 icon={<ChevronsUpDown />}
                 disabled={!thisUserIsOwner}
                 defaultValue={field.value}
+                type="button"
                 className="w-full cursor-pointer border-gray-300"
               >
                 <SelectValue placeholder="Selecione uma etiqueta" />
@@ -266,6 +266,7 @@ export const AddEventForm = ({ event }: Props) => {
                 <PopoverTrigger
                   className="pointer-events-none absolute inset-0 h-full w-full"
                   disabled={!thisUserIsOwner}
+                  type="button"
                 />
                 <div className="flex flex-1 items-center gap-1">
                   <User />
@@ -278,6 +279,7 @@ export const AddEventForm = ({ event }: Props) => {
                             handleRemoveAssign(index, value.user, event?.uuid)
                           }
                           disabled={!thisUserIsOwner}
+                          type="button"
                           className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
                         >
                           <span className="truncate">{value.user}</span>
@@ -289,6 +291,7 @@ export const AddEventForm = ({ event }: Props) => {
                       className="cursor-pointer rounded p-0.5 hover:bg-gray-100"
                       onClick={() => setOpen(true)}
                       disabled={!thisUserIsOwner}
+                      type="button"
                     >
                       <Plus />
                     </button>
@@ -296,7 +299,7 @@ export const AddEventForm = ({ event }: Props) => {
                 </div>
               </div>
             ) : (
-              <PopoverTrigger asChild disabled={!thisUserIsOwner}>
+              <PopoverTrigger asChild disabled={!thisUserIsOwner} type="button">
                 <button
                   disabled={!thisUserIsOwner}
                   aria-expanded={open}
@@ -304,6 +307,7 @@ export const AddEventForm = ({ event }: Props) => {
                     buttonVariants({ variant: 'outline' }),
                     'h-max min-h-9 w-full cursor-pointer items-center justify-start border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
                   )}
+                  type="button"
                 >
                   <User />
                   <span>Adicionar pessoas</span>

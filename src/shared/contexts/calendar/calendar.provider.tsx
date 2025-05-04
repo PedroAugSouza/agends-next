@@ -14,13 +14,16 @@ import { CalendarContext } from './calendar.context';
 import { getSession } from '@/shared/utils/get-session';
 import { setHours, setMinutes } from 'date-fns';
 import {
+  AssignUsersPayload,
   InputCreateEvent,
   InputCreateHabit,
   InputCreateTag,
   InputUpdateEvent,
+  RemoveAssignmentUserPayload,
 } from './calendar.contact';
 import { DEFAULT_SETTING_API } from '@/shared/constants/default-setting-api';
 import { useState } from 'react';
+import { socket } from '@/shared/lib/socket';
 
 export const CalendarProvider = ({
   children,
@@ -60,14 +63,12 @@ export const CalendarProvider = ({
       },
     });
 
-  const removeAssignment = async (eventUuid: string, userEmail: string) => {
-    await removeAssignmentControllerHandle(
-      userEmail,
+  const removeAssignment = (eventUuid: string, userEmail: string) => {
+    socket.emit('remove-assignment', {
       eventUuid,
-      DEFAULT_SETTING_API,
-    );
-
-    refreshEvents();
+      ownerEmail: user.email,
+      userEmail,
+    } as RemoveAssignmentUserPayload);
     return;
   };
 
@@ -102,11 +103,26 @@ export const CalendarProvider = ({
           startsOf: startsTime,
           endsOf: endsTime,
           tagUuid: input.tagUuid,
-          userUuid: user?.uuid,
-          assignedUsers: input.asssignedUsers?.map((user) => user.user),
+          userEmail: user?.email,
         },
         DEFAULT_SETTING_API,
-      );
+      ).then((response) => {
+        if (!response) return;
+        if (input.asssignedUsers.length) {
+          socket.emit(
+            'assign-users',
+            input.asssignedUsers.map(
+              (value) =>
+                ({
+                  userEmail: value.user,
+                  ownerEmail: user.email,
+                  eventUuid: response.data.uuid,
+                }) as AssignUsersPayload,
+            ),
+          );
+        }
+      });
+
       refreshEvents();
 
       return;
@@ -118,13 +134,27 @@ export const CalendarProvider = ({
         date: input.date,
         allDay: input.allDay,
         tagUuid: input.tagUuid,
-        userUuid: user?.uuid,
+        userEmail: user?.email,
         endsOf: null,
         startsOf: null,
-        assignedUsers: input.asssignedUsers?.map((user) => user.user),
       },
       DEFAULT_SETTING_API,
-    );
+    ).then((response) => {
+      if (!response) return;
+      if (input.asssignedUsers.length) {
+        socket.emit(
+          'assign-users',
+          input.asssignedUsers.map(
+            (value) =>
+              ({
+                userEmail: value.user,
+                ownerEmail: user.email,
+                eventUuid: response.data.uuid,
+              }) as AssignUsersPayload,
+          ),
+        );
+      }
+    });
     refreshEvents();
     return;
   };
@@ -148,7 +178,25 @@ export const CalendarProvider = ({
           tagUuid: input.tagUuid,
         },
         DEFAULT_SETTING_API,
-      );
+      ).then((response) => {
+        if (!response) return;
+        if (input.asssignedUsers.length) {
+          console.log(
+            input.asssignedUsers.filter((assign) => assign.user !== user.email),
+          );
+          // socket.emit(
+          //   'assign-users',
+          //   input.asssignedUsers.map(
+          //     (value) =>
+          //       ({
+          //         userEmail: value.user,
+          //         ownerEmail: user.email,
+          //         eventUuid: response.data.uuid,
+          //       }) as AssignUsersPayload,
+          //   ),
+          // );
+        }
+      });
       refreshEvents();
       return;
     }
@@ -163,8 +211,25 @@ export const CalendarProvider = ({
         startsOf: null,
       },
       DEFAULT_SETTING_API,
-    );
-    refreshEvents();
+    ).then((response) => {
+      if (!response) return;
+      if (input.asssignedUsers.length) {
+        socket.emit(
+          'assign-users',
+          input.asssignedUsers
+            .filter((assign) => assign.user !== user.email)
+            .map(
+              (value) =>
+                ({
+                  userEmail: value.user,
+                  ownerEmail: user.email,
+                  eventUuid: input.uuid,
+                }) as AssignUsersPayload,
+            ),
+        );
+      }
+      refreshEvents();
+    });
     return;
   };
 

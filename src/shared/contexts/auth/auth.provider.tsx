@@ -14,7 +14,7 @@ import {
 import { ApiErrors } from '@/shared/constants/api-errors.constants';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
-import { setCookie } from 'cookies-next';
+import { setCookie, deleteCookie } from 'cookies-next';
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = () => {
     setUser(null);
-
+    deleteCookie('token');
     push('/login');
   };
 

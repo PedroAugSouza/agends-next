@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '../shared/styles/globals.css';
 import { AuthProvider } from '@/shared/contexts/auth/auth.provider';
 import { DrawerCSSProvider } from '@/shared/providers/drawer-css.provider';
-import { QueryClientProvider } from '@/shared/providers/query.provider';
+
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,11 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProvider>
+
           <DrawerCSSProvider>
             <AuthProvider>{children}</AuthProvider>
           </DrawerCSSProvider>
-        </QueryClientProvider>
+
       </body>
     </html>
   );

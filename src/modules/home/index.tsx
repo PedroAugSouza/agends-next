@@ -15,7 +15,11 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 
-import { removeTagsControllerHandle } from '@/shared/http/http';
+import {
+  markAsReadNotificationControllerHandle,
+  removeTagsControllerHandle,
+  useGetAllNotificationsControllerHandle,
+} from '@/shared/http/http';
 
 import { AccordionHeader } from '@radix-ui/react-accordion';
 import { PopoverArrow } from '@radix-ui/react-popover';
@@ -71,12 +75,28 @@ import {
 } from '@/shared/components/ui/resizable';
 
 import { WeekCalendar } from './shared/components/week-calendar';
+import { socket } from '@/shared/lib/socket';
+import { getSession } from '@/shared/utils/get-session';
+import { NotificationType } from '@/shared/constants/notifications-type.constant';
 
 export const HomeModule = () => {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
 
-  const { getEventsByDay, tags, refreshTags, currentDate, setCurrentDate } =
-    useCalendar();
+  const user = getSession();
+
+  const {
+    getEventsByDay,
+    tags,
+    refreshTags,
+    currentDate,
+    setCurrentDate,
+    refreshEvents,
+  } = useCalendar();
+
+  const { data: notifications, mutate: refreshNotifications } =
+    useGetAllNotificationsControllerHandle(user.uuid, {
+      axios: DEFAULT_SETTING_API,
+    });
 
   const { signOut } = useAuth();
 
@@ -143,31 +163,73 @@ export const HomeModule = () => {
   const [toggleAddTag, setToggleAddTag] = useState(false);
   const [toggleAddHabit, setToggleAddHabit] = useState(false);
 
+  socket.on('notification', () => {
+    refreshNotifications();
+    refreshEvents();
+  });
+
   return (
-    <main className="flex h-screen flex-col items-start justify-start overflow-hidden">
-      <nav className="flex h-13 w-screen items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
+    <main className="flex h-screen max-h-screen flex-col items-start justify-start overflow-hidden">
+      <nav className="flex h-13 w-screen flex-none items-center justify-between border-b border-zinc-200 bg-gray-100 px-6">
         <Brand />
 
         <div className="flex items-center gap-4">
           <Popover>
-            <PopoverTrigger className="cursor-pointer">
+            <PopoverTrigger className="relative cursor-pointer">
+              {notifications &&
+                notifications?.data.filter(
+                  (notification) => notification.isRead === false,
+                )?.length > 0 && (
+                  <div className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-violet-500" />
+                )}
+
               <Inbox size={24} color={colors.gray[600]} strokeWidth={1.5} />
             </PopoverTrigger>
+
             <PopoverContent
-              className="mt-2 mr-2 flex w-80 flex-col items-start justify-start gap-2.5 p-2"
+              className="mt-2 mr-2 flex w-80 flex-col items-start justify-start gap-1 overflow-auto p-2"
               side="left"
             >
               <h1 className="text-sm font-semibold text-gray-700">
                 Notificações
               </h1>
-              <div className="flex flex-col items-start justify-start gap-1 rounded-md bg-gray-100 p-2.5">
-                <h1 className="text-sm font-semibold text-gray-700">
-                  Erick Willyan
-                </h1>
-                <span className="text-gray-500">
-                  Erick Willyan te adicionou no evento “Apresentar seminário”.
-                </span>
-              </div>
+
+              {notifications?.data.map((item) => {
+                const sender = item.NotificationsToUSers.filter(
+                  (user) => user.isSender === true,
+                )[0];
+
+                return (
+                  <div
+                    className="group relative flex flex-col items-start justify-start gap-0.5 border-b p-2.5 last:border-none"
+                    key={item.uuid}
+                  >
+                    <span className="text-gray-500">
+                      {item.NotificationType ===
+                      NotificationType.ASSIGN_USER_TO_EVENT
+                        ? `${sender.user.name} te adicionou em um novo evento.`
+                        : `${sender.user.name} te removeu de um evento.`}
+                    </span>
+                    <div className="absolute right-3 bottom-0.5 hidden w-full justify-end group-hover:flex">
+                      {item.isRead ? (
+                        <span className="cursor-alias text-gray-600">Lida</span>
+                      ) : (
+                        <button
+                          className="cursor-pointer text-gray-600"
+                          onClick={() => {
+                            markAsReadNotificationControllerHandle(
+                              item.uuid,
+                              DEFAULT_SETTING_API,
+                            ).then(() => refreshNotifications());
+                          }}
+                        >
+                          Marcar como lida
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </PopoverContent>
           </Popover>
 
