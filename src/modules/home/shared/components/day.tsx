@@ -38,21 +38,21 @@ export const Day = ({ date, displayMonth, events }: Props) => {
         })}
       >
         {date.getDate()}
-        <div className="mt-0.5 size-1 rounded-full bg-white" />
+        <div className="size-1 rounded-full bg-white" />
       </span>
 
       <div className="flex w-full grow flex-col items-start justify-start gap-2 overflow-auto">
         {events.map((event) => (
           <Popover key={event.uuid}>
             <PopoverTrigger
-              className="flex h-5 w-full cursor-pointer items-center gap-2 rounded-full px-1.5 text-white"
+              className="flex h-5 w-full cursor-pointer items-center gap-2 rounded-full px-1.5 text-sm text-white transition-all duration-300 data-[state=open]:shadow-md"
               style={{ background: event.tag.color }}
             >
               <div className="size-2.5 rounded-full bg-white" />
               <span>{event.name}</span>
             </PopoverTrigger>
             <PopoverContent
-              className="w-72 rounded-lg p-4 text-gray-700"
+              className="w-72 rounded-lg bg-white/70 p-4 text-gray-700 backdrop-blur-[4px]"
               side="left"
             >
               <PopoverArrow className="fill-gray-300" />

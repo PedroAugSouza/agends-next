@@ -30,9 +30,11 @@ import {
   ChevronsUpDown,
   CircleEllipsis,
   CirclePlus,
+  Ellipsis,
   Inbox,
   Minus,
   Plus,
+  User,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -52,6 +54,7 @@ import { ptBR } from 'date-fns/locale';
 import { Day } from './shared/components/day';
 import { getMonth } from '@/shared/utils/getMonth';
 import {
+  format,
   getISOWeeksInYear,
   getWeek,
   setMonth,
@@ -78,6 +81,11 @@ import { WeekCalendar } from './shared/components/week-calendar';
 import { socket } from '@/shared/lib/socket';
 import { getSession } from '@/shared/utils/get-session';
 import { NotificationType } from '@/shared/constants/notifications-type.constant';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip';
 
 export const HomeModule = () => {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
@@ -96,6 +104,9 @@ export const HomeModule = () => {
   const { data: notifications, mutate: refreshNotifications } =
     useGetAllNotificationsControllerHandle(user.uuid, {
       axios: DEFAULT_SETTING_API,
+      swr: {
+        revalidateOnFocus: false,
+      },
     });
 
   const { signOut } = useAuth();
@@ -186,60 +197,53 @@ export const HomeModule = () => {
               <Inbox size={24} color={colors.gray[600]} strokeWidth={1.5} />
             </PopoverTrigger>
 
-            <PopoverContent
-              className="mt-2 mr-2 flex w-80 flex-col items-start justify-start gap-1 overflow-auto p-2"
-              side="left"
-            >
-              <h1 className="text-sm font-semibold text-gray-700">
-                Notificações
-              </h1>
+            {(notifications?.data?.length ?? 0) > 0 && (
+              <PopoverContent
+                className="mt-2 mr-2 flex w-80 flex-col items-start justify-start gap-1 overflow-auto p-2"
+                side="left"
+              >
+                <h1 className="text-sm font-semibold text-gray-700">
+                  Notificações
+                </h1>
 
-              {notifications?.data.map((item) => {
-                const sender = item.NotificationsToUSers.filter(
-                  (user) => user.isSender === true,
-                )[0];
+                {notifications?.data.map((item) => {
+                  const sender = item.NotificationsToUSers.filter(
+                    (user) => user.isSender === true,
+                  )[0];
 
-                return (
-                  <div
-                    className="group relative flex flex-col items-start justify-start gap-0.5 border-b p-2.5 last:border-none"
-                    key={item.uuid}
-                  >
-                    <span className="text-gray-500">
-                      {item.NotificationType ===
-                      NotificationType.ASSIGN_USER_TO_EVENT
-                        ? `${sender.user.name} te adicionou em um novo evento.`
-                        : `${sender.user.name} te removeu de um evento.`}
-                    </span>
-                    <div className="absolute right-3 bottom-0.5 hidden w-full justify-end group-hover:flex">
-                      {item.isRead ? (
-                        <span className="cursor-alias text-gray-600">Lida</span>
-                      ) : (
-                        <button
-                          className="cursor-pointer text-gray-600"
-                          onClick={() => {
-                            markAsReadNotificationControllerHandle(
-                              item.uuid,
-                              DEFAULT_SETTING_API,
-                            ).then(() => refreshNotifications());
-                          }}
-                        >
-                          Marcar como lida
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </PopoverContent>
+                  return (
+                    !item.isRead && (
+                      <button
+                        className="group relative flex w-full cursor-pointer flex-col items-start justify-start gap-0.5 border-b p-2.5 text-start text-sm last:border-none hover:bg-zinc-50"
+                        onClick={() => {
+                          markAsReadNotificationControllerHandle(
+                            item.uuid,
+                            DEFAULT_SETTING_API,
+                          ).then(() => refreshNotifications());
+                        }}
+                        key={item.uuid}
+                      >
+                        <span className="text-gray-500">
+                          {item.NotificationType ===
+                          NotificationType.ASSIGN_USER_TO_EVENT
+                            ? `${sender.user.name} te adicionou em um novo evento.`
+                            : `${sender.user.name} te removeu de um evento.`}
+                        </span>
+                      </button>
+                    )
+                  );
+                })}
+              </PopoverContent>
+            )}
           </Popover>
 
           <Popover>
-            <PopoverTrigger className="size-9 cursor-pointer rounded-full border border-gray-400">
-              F
+            <PopoverTrigger className="cursor-pointer rounded-full border bg-white p-1 text-zinc-400 transition-all hover:border-violet-200">
+              <User className="m-auto" size={20} />
             </PopoverTrigger>
             <PopoverContent className="mr-4 flex w-max flex-col items-start justify-start gap-2.5 p-1">
               <button
-                className="flex w-24 cursor-pointer items-center justify-between gap-2.5 rounded px-2 hover:bg-gray-100"
+                className="flex w-24 cursor-pointer items-center justify-between gap-2.5 rounded px-2 text-sm hover:bg-gray-100"
                 onClick={() => signOut()}
               >
                 <span>Sair</span>
@@ -299,7 +303,7 @@ export const HomeModule = () => {
                             {tag.name}
                           </span>
                         </div>
-                        <CircleEllipsis
+                        <Ellipsis
                           size={20}
                           strokeWidth={1.5}
                           color={colors.gray[600]}
@@ -308,12 +312,12 @@ export const HomeModule = () => {
                       </PopoverTrigger>
                       <PopoverContent
                         side="right"
-                        className="flex w-fit flex-col items-start justify-start gap-2.5 p-1"
+                        className="flex w-36 flex-col items-start justify-start gap-2.5 p-1"
                       >
                         <PopoverArrow className="fill-white" />
                         <Button
                           size="sm"
-                          className="cursor-pointer rounded bg-gray-50 text-zinc-700 hover:bg-gray-100"
+                          className="w-full cursor-pointer rounded bg-gray-50 text-start text-zinc-700 hover:bg-gray-100"
                           onClick={() =>
                             removeTagsControllerHandle(
                               tag.uuid,
@@ -323,7 +327,7 @@ export const HomeModule = () => {
                             })
                           }
                         >
-                          Excluir
+                          <span className="w-full text-start">Editar</span>
                         </Button>
                       </PopoverContent>
                     </Popover>
@@ -331,66 +335,49 @@ export const HomeModule = () => {
                 </AccordionContent>
               </AccordionItem>
               {toggleAddTag && <TagForm setToggleAddTag={setToggleAddTag} />}
-              {/* <AccordionItem value="item-2">
-              <AccordionHeader className="flex flex-row items-center justify-between">
-                <span className="text-base font-semibold text-gray-700">
-                  Meus hábitos
-                </span>
-                <div className="flex items-center gap-1 text-gray-500">
-                  <button>
-                    <Plus size={22} />
-                  </button>
-
-                  <AccordionTrigger className="group w-full cursor-pointer items-center justify-between">
-                    <ChevronDown
-                      size={22}
-                      className="transition-all group-data-[state=open]:rotate-180"
-                    />  
-                  </AccordionTrigger>
-                </div>
-              </AccordionHeader>
-              <AccordionContent>
-                Yes. It adheres to the WAI-ARIA design pattern.
-              </AccordionContent>
-            </AccordionItem> */}
             </Accordion>
           </ResizablePanel>
           <ResizableHandle className="bg-transparent" />
 
           <ResizablePanel className="flex h-full flex-1 flex-col items-center pr-6 pb-2.5 pl-2.5">
             <nav className="ites-center flex h-12 w-full justify-between border-b border-gray-200 p-2">
-              <div className="flex items-center">
-                <span className="w-40 text-xl font-medium text-gray-600">
-                  <strong className="text-gray-800">
-                    {getMonth(currentDate.getMonth())}
-                  </strong>{' '}
-                  {currentDate.getFullYear()}
-                </span>
+              <span className="w-fit text-xl font-medium text-gray-600">
+                <strong className="text-gray-800">
+                  {getMonth(currentDate.getMonth())}
+                </strong>{' '}
+                {currentDate.getFullYear()}
+              </span>
 
-                <div className="flex items-center gap-1.5">
-                  <button
-                    className="cursor-pointer text-violet-700"
-                    onClick={
-                      viewMode === 'month' ? handlePrevMonth : handlePrevWeek
-                    }
-                  >
-                    <ChevronLeft size={22} strokeWidth={1.5} />
-                  </button>
-                  <button
-                    className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700"
-                    onClick={() => setCurrentDate(new Date())}
-                  >
-                    Hoje
-                  </button>
-                  <button
-                    className="cursor-pointer text-violet-700"
-                    onClick={
-                      viewMode === 'month' ? handleNextMonth : handleNextWeek
-                    }
-                  >
-                    <ChevronRight size={22} strokeWidth={1.5} />
-                  </button>
-                </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  className="cursor-pointer text-violet-700"
+                  onClick={
+                    viewMode === 'month' ? handlePrevMonth : handlePrevWeek
+                  }
+                >
+                  <ChevronLeft size={22} strokeWidth={1.5} />
+                </button>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <button
+                      className="cursor-pointer rounded bg-gray-100 px-2 py-1 text-violet-700"
+                      onClick={() => setCurrentDate(new Date())}
+                    >
+                      Hoje
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {format(new Date(), 'dd/MM/yyyy')}
+                  </TooltipContent>
+                </Tooltip>
+                <button
+                  className="cursor-pointer text-violet-700"
+                  onClick={
+                    viewMode === 'month' ? handleNextMonth : handleNextWeek
+                  }
+                >
+                  <ChevronRight size={22} strokeWidth={1.5} />
+                </button>
               </div>
 
               <div className="flex items-center gap-4">

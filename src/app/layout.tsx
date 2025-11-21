@@ -4,7 +4,6 @@ import '../shared/styles/globals.css';
 import { AuthProvider } from '@/shared/contexts/auth/auth.provider';
 import { DrawerCSSProvider } from '@/shared/providers/drawer-css.provider';
 
-
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -28,13 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.className} ${geistMono.variable} antialiased`}
       >
-
-          <DrawerCSSProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </DrawerCSSProvider>
-
+        <DrawerCSSProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </DrawerCSSProvider>
       </body>
     </html>
   );

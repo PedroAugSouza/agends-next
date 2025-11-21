@@ -13,6 +13,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { useCalendar } from '@/shared/hooks/useCalendar';
+import { cn } from '@/shared/lib/utils';
 
 type FormTagType = z.infer<typeof addTagSchema>;
 
@@ -66,12 +67,12 @@ export const TagForm = ({ setToggleAddTag }: Props) => {
       <div className="flex w-full items-center justify-between gap-2.5 border-b border-gray-300 px-2.5 pt-0 pb-1">
         <input
           type="text"
-          className="border-none bg-none outline-none"
+          className="w-full border-none bg-none outline-none"
           placeholder="Nome..."
           {...register('name')}
         />
         <button
-          className="grid size-5 cursor-pointer place-items-center rounded-sm text-white"
+          className="grid h-5 w-6 cursor-pointer place-items-center rounded-sm text-white"
           type="submit"
           style={{
             backgroundColor: watch('color'),
@@ -90,14 +91,19 @@ export const TagForm = ({ setToggleAddTag }: Props) => {
             onValueChange={(value) => field.onChange(value)}
             value={field.value}
             defaultValue={field.value}
-            className="flex w-full items-center justify-center gap-2.5 px-2"
+            className="grid w-full grid-cols-9"
           >
             {colorsTag.map((color, index) => (
               <ToggleGroupItem
                 value={color}
                 key={index}
                 type="button"
-                className="size-[18px] rounded-full border border-gray-200 transition-all hover:border-gray-400"
+                className={cn(
+                  'size-[18px] flex-none rounded-full border border-gray-200 transition-all hover:border-gray-400',
+                  {
+                    'pointer-events-none': watch('color') === color,
+                  },
+                )}
                 size="sm"
                 style={{ backgroundColor: color }}
               />

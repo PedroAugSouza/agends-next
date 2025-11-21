@@ -117,6 +117,11 @@ export const AddEventForm = ({ event }: Props) => {
       : user.uuid,
     {
       axios: DEFAULT_SETTING_API,
+      swr: {
+        revalidateOnFocus: false,
+        revalidateOnMount: false,
+        revalidateOnReconnect: false,
+      },
     },
   );
   const [open, setOpen] = useState(false);
@@ -195,17 +200,17 @@ export const AddEventForm = ({ event }: Props) => {
       <div
         className={cn('flex w-full flex-col items-start gap-2.5', {
           'h-max text-zinc-400 **:cursor-not-allowed': !thisUserIsOwner,
-          'h-64': thisUserIsOwner,
+          'h-max': thisUserIsOwner,
         })}
       >
         <div className="flex w-full items-center gap-2.5">
           <div
-            className="size-4 rounded-full border"
+            className="size-3 rounded-full"
             style={{ background: tagSelected.color }}
           />
           <input
             type="text"
-            className="border-none outline-none placeholder:italic"
+            className="border-none bg-white/60 outline-none placeholder:italic"
             placeholder="Nome do evento"
             disabled={!thisUserIsOwner}
             {...register('name')}
@@ -228,12 +233,12 @@ export const AddEventForm = ({ event }: Props) => {
                 disabled={!thisUserIsOwner}
                 defaultValue={field.value}
                 type="button"
-                className="w-full cursor-pointer border-gray-300"
+                className="w-full cursor-pointer border-gray-300 bg-white/60"
               >
                 <SelectValue placeholder="Selecione uma etiqueta" />
               </SelectTrigger>
 
-              <SelectContent className="flex flex-col items-center gap-2">
+              <SelectContent className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-[4px]">
                 {tags?.data.map((tag) => (
                   <SelectItem
                     key={tag.uuid}
@@ -251,72 +256,23 @@ export const AddEventForm = ({ event }: Props) => {
         />
         <div className="flex w-full flex-col gap-2 text-gray-500">
           <Popover open={open} onOpenChange={setOpen}>
-            {fieldsFiltered.length ? (
-              <div
+            <PopoverTrigger asChild disabled={!thisUserIsOwner} type="button">
+              <button
+                disabled={!thisUserIsOwner}
                 aria-expanded={open}
                 className={cn(
                   buttonVariants({ variant: 'outline' }),
-                  'relative h-max min-h-9 w-full cursor-pointer justify-between border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
-                  {
-                    'cursor-not-allowed opacity-60 **:cursor-not-allowed':
-                      !thisUserIsOwner,
-                  },
+                  'h-max min-h-9 w-full cursor-pointer items-center justify-start border-gray-300 bg-white/60 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
                 )}
+                type="button"
               >
-                <PopoverTrigger
-                  className="pointer-events-none absolute inset-0 h-full w-full"
-                  disabled={!thisUserIsOwner}
-                  type="button"
-                />
-                <div className="flex flex-1 items-center gap-1">
-                  <User />
-                  <div className="flex flex-1 flex-wrap items-center gap-1 text-sm">
-                    {fieldsFiltered.map((value, index) => {
-                      return (
-                        <button
-                          key={index}
-                          onClick={() =>
-                            handleRemoveAssign(index, value.user, event?.uuid)
-                          }
-                          disabled={!thisUserIsOwner}
-                          type="button"
-                          className="flex max-w-28 cursor-pointer items-center truncate rounded bg-gray-100 px-1"
-                        >
-                          <span className="truncate">{value.user}</span>
-                          <X size={6} strokeWidth={1} />
-                        </button>
-                      );
-                    })}
-                    <button
-                      className="cursor-pointer rounded p-0.5 hover:bg-gray-100"
-                      onClick={() => setOpen(true)}
-                      disabled={!thisUserIsOwner}
-                      type="button"
-                    >
-                      <Plus />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <PopoverTrigger asChild disabled={!thisUserIsOwner} type="button">
-                <button
-                  disabled={!thisUserIsOwner}
-                  aria-expanded={open}
-                  className={cn(
-                    buttonVariants({ variant: 'outline' }),
-                    'h-max min-h-9 w-full cursor-pointer items-center justify-start border-gray-300 font-normal text-gray-500 hover:bg-white hover:text-gray-500',
-                  )}
-                  type="button"
-                >
-                  <User />
-                  <span>Adicionar pessoas</span>
-                </button>
-              </PopoverTrigger>
-            )}
+                <User />
+                <span>Adicionar pessoas</span>
+              </button>
+            </PopoverTrigger>
 
-            <PopoverContent className="w-full p-0">
-              <Command className="w-full">
+            <PopoverContent className="w-full bg-white/60 p-0">
+              <Command className="w-full bg-white/60 backdrop-blur-[2px]">
                 <CommandInput
                   className="w-[calc(var(--container-3xs)-1.2rem)]"
                   value={inputValue}
@@ -354,6 +310,28 @@ export const AddEventForm = ({ event }: Props) => {
               </Command>
             </PopoverContent>
           </Popover>
+          <div className="flex w-full flex-col">
+            {fieldsFiltered.map((value, index) => {
+              return (
+                <button
+                  key={index}
+                  onClick={() =>
+                    handleRemoveAssign(index, value.user, event?.uuid)
+                  }
+                  disabled={!thisUserIsOwner}
+                  type="button"
+                  className="group flex w-full cursor-pointer items-center justify-between truncate rounded px-1 py-1 text-sm hover:bg-zinc-50/60"
+                >
+                  <span className="truncate">{value.user}</span>
+                  <X
+                    size={16}
+                    strokeWidth={2}
+                    className="invisible group-hover:visible"
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <Popover>
@@ -409,6 +387,7 @@ export const AddEventForm = ({ event }: Props) => {
             name="allDay"
             render={({ field }) => (
               <Switch
+                className="data-[state=checked]:bg-blue-500"
                 disabled={!thisUserIsOwner}
                 onCheckedChange={(value) => {
                   field.onChange(value);
@@ -435,7 +414,7 @@ export const AddEventForm = ({ event }: Props) => {
                 <div className="flex items-center gap-1">
                   <input
                     type="text"
-                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
+                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 text-sm outline-none"
                     placeholder="00"
                     maxLength={2}
                     disabled={!thisUserIsOwner}
@@ -445,7 +424,7 @@ export const AddEventForm = ({ event }: Props) => {
                   <input
                     type="text"
                     placeholder="00"
-                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
+                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 text-sm outline-none"
                     maxLength={2}
                     disabled={!thisUserIsOwner}
                     {...register('startTimeMinutes')}
@@ -473,7 +452,7 @@ export const AddEventForm = ({ event }: Props) => {
                   <input
                     type="text"
                     placeholder="00"
-                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
+                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 text-sm outline-none"
                     maxLength={2}
                     disabled={!thisUserIsOwner}
                     {...register('endTimeHours')}
@@ -482,7 +461,7 @@ export const AddEventForm = ({ event }: Props) => {
                   <input
                     type="text"
                     placeholder="00"
-                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 outline-none"
+                    className="size-7 rounded border border-gray-200 bg-gray-50 px-1 text-sm outline-none"
                     maxLength={2}
                     disabled={!thisUserIsOwner}
                     {...register('endTimeMinutes')}
@@ -499,9 +478,14 @@ export const AddEventForm = ({ event }: Props) => {
         )}
       </div>
       {thisUserIsOwner && (
-        <div className="mt-10 flex w-full items-center justify-end gap-2.5">
-          <Button className="bg-red-500 px-2 py-1">Cancelar</Button>
-          <Button className="bg-emerald-500 px-2 py-1" type="submit">
+        <div className="mt-10 flex w-full items-center justify-end gap-2">
+          <Button className="h-8 rounded-lg px-2" variant="ghost">
+            Cancelar
+          </Button>
+          <Button
+            className="h-8 rounded-lg bg-emerald-500 px-2 hover:bg-emerald-600"
+            type="submit"
+          >
             Salvar
           </Button>
         </div>

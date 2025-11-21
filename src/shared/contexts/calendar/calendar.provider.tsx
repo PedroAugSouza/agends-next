@@ -40,6 +40,9 @@ export const CalendarProvider = ({
       { date: currentDate.toDateString() },
       {
         axios: DEFAULT_SETTING_API,
+        swr: {
+          revalidateOnFocus: false,
+        },
       },
     );
 
@@ -51,6 +54,9 @@ export const CalendarProvider = ({
           Authorization: `Bearer ${user.token}`,
         },
       },
+      swr: {
+        revalidateOnFocus: false,
+      },
     },
   );
 
@@ -60,6 +66,9 @@ export const CalendarProvider = ({
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
+      },
+      swr: {
+        revalidateOnFocus: false,
       },
     });
 
