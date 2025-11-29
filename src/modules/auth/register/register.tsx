@@ -46,10 +46,17 @@ const lilita = Lilita_One({
 
 type FormProps = z.infer<typeof registerUserSchema>;
 
-export const RegisterModule = () => {
-  const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
+function isClientSide() {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
 
+export const RegisterModule = () => {
   const { signUp, serverErrors } = useAuth();
+
+  if (!isClientSide()) {
+    return;
+  }
+  const isSmallDevice = useMediaQuery('only screen and (max-width : 768px)');
 
   const {
     control,

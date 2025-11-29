@@ -102,7 +102,7 @@ export const HomeModule = () => {
   } = useCalendar();
 
   const { data: notifications, mutate: refreshNotifications } =
-    useGetAllNotificationsControllerHandle(user.uuid, {
+    useGetAllNotificationsControllerHandle(user.uuid ?? '', {
       axios: DEFAULT_SETTING_API,
       swr: {
         revalidateOnFocus: false,

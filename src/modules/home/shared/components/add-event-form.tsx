@@ -111,10 +111,10 @@ export const AddEventForm = ({ event }: Props) => {
 
   const { data: tags } = useGetAllTagsControllerHandle(
     event
-      ? event?.assignedEventToUsers.filter(
+      ? (event?.assignedEventToUsers.filter(
           (assign) => assign.isOwner === true,
-        )[0]?.user.uuid
-      : user.uuid,
+        )[0]?.user.uuid ?? '')
+      : (user.uuid ?? ''),
     {
       axios: DEFAULT_SETTING_API,
       swr: {
@@ -178,7 +178,7 @@ export const AddEventForm = ({ event }: Props) => {
 
   const thisUserIsOwner = event
     ? event.assignedEventToUsers?.filter(
-        (assign) => assign.user.uuid === user.uuid,
+        (assign) => assign.user.uuid === (user.uuid ?? ''),
       )[0].isOwner
     : true;
 

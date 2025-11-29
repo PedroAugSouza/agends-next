@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "prebuild": "tsx .orval/build.ts",
     "lint": "next lint",
     "generate orval": "orval --config ./orval.config.js"
   },
@@ -34,6 +35,7 @@
     "cmdk": "^1.1.1",
     "cookies-next": "^5.1.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.477.0",
     "moment": "^2.30.1",

@@ -47,7 +47,7 @@ export const TagForm = ({ setToggleAddTag }: Props) => {
       {
         name: data.name,
         color: data.color,
-        userUuid: user.uuid,
+        userUuid: user.uuid ?? '',
       },
       {
         headers: {

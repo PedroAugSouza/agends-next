@@ -1,7 +1,7 @@
-import { RegisterModule } from "@/modules/auth/register/register";
+'use client';
+
+import { RegisterModule } from '@/modules/auth/register/register';
 
 export default function RegisterPage() {
-  return (
-    <RegisterModule/>
-  )
+  return <RegisterModule />;
 }

@@ -142,37 +142,6 @@ paths:
         - bearer: []
       tags:
         - Remove Habit
-    get:
-      operationId: GetHabitByUuidController_handle
-      parameters:
-        - name: uuid
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Habit finded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OutputGetHabitByUuidDTO'
-        5XX:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IError'
-        4XX:
-          description: Client error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IError'
-      security:
-        - bearer: []
-      tags:
-        - Get Habit By Uuid
   /event:
     post:
       operationId: CreateEventController_handle
@@ -264,39 +233,6 @@ paths:
         - bearer: []
       tags:
         - Remove Event
-  /remove-assignment/{userEmail}/{eventUuid}:
-    delete:
-      operationId: RemoveAssignmentController_handle
-      parameters:
-        - name: userEmail
-          required: true
-          in: path
-          schema:
-            type: string
-        - name: eventUuid
-          required: true
-          in: path
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Assignment Removed
-        5XX:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IError'
-        4XX:
-          description: Client error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IError'
-      security:
-        - bearer: []
-      tags:
-        - Remove Assignment
   /notification/mask-as-read/{uuid}:
     patch:
       operationId: MarkAsReadNotificationController_handle
@@ -451,7 +387,7 @@ paths:
         - bearer: []
       tags:
         - Get Tag By Uuid
-  /habit/{userUuid}:
+  /habit/user/{userUuid}:
     get:
       operationId: GetAllHabitsController_handle
       parameters:
@@ -485,6 +421,38 @@ paths:
         - bearer: []
       tags:
         - Get All Habits
+  /habit/by/{uuid}:
+    get:
+      operationId: GetHabitByUuidController_handle
+      parameters:
+        - name: uuid
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Habit finded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputGetHabitByUuidDTO'
+        5XX:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+        4XX:
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IError'
+      security:
+        - bearer: []
+      tags:
+        - Get Habit By Uuid
   /events/{userUuid}:
     get:
       operationId: GetAllEventsController_handle

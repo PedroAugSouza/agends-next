@@ -3,11 +3,25 @@ import { jwtDecode } from 'jwt-decode';
 import { User } from '../contexts/auth/auth.contact';
 
 export const getSession = () => {
-  const userDecoded =
-    (jwtDecode(getCookie('token')?.toString() || '') as User) || null;
+  const rawToken = getCookie('token')?.toString() || null;
 
-  return {
-    ...userDecoded,
-    token: getCookie('token'),
-  };
+  if (!rawToken) {
+    return {
+      token: null,
+    } as Partial<User> & { token: string | null };
+  }
+
+  try {
+    const userDecoded = (jwtDecode(rawToken) as User) || null;
+
+    return {
+      ...userDecoded,
+      token: rawToken,
+    };
+  } catch {
+    return {
+      token: rawToken,
+    } as Partial<User> & { token: string | null };
+  }
+
 };

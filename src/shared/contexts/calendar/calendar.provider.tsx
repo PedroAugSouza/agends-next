@@ -4,7 +4,6 @@ import {
   createEventControllerHandle,
   createTagsControllerHandle,
   OutputGetAllEventsDTO,
-  removeAssignmentControllerHandle,
   updateEventControllerHandle,
   useGetAllEventsControllerHandle,
   useGetAllHabitsControllerHandle,
@@ -36,7 +35,7 @@ export const CalendarProvider = ({
 
   const { data: events, mutate: refreshEvents } =
     useGetAllEventsControllerHandle(
-      user.uuid,
+      user.uuid ?? '',
       { date: currentDate.toDateString() },
       {
         axios: DEFAULT_SETTING_API,
@@ -47,7 +46,7 @@ export const CalendarProvider = ({
     );
 
   const { data: tags, mutate: refreshTags } = useGetAllTagsControllerHandle(
-    user.uuid,
+    user.uuid ?? '',
     {
       axios: {
         headers: {
@@ -61,7 +60,7 @@ export const CalendarProvider = ({
   );
 
   const { data: habits, mutate: refreshHabits } =
-    useGetAllHabitsControllerHandle(user.uuid, {
+    useGetAllHabitsControllerHandle(user.uuid ?? '', {
       axios: {
         headers: {
           Authorization: `Bearer ${user.token}`,
@@ -88,7 +87,7 @@ export const CalendarProvider = ({
       {
         name: input.name,
         color: input.color,
-        userUuid: user.uuid,
+        userUuid: user.uuid ?? '',
       },
       DEFAULT_SETTING_API,
     );
@@ -107,12 +106,12 @@ export const CalendarProvider = ({
       await createEventControllerHandle(
         {
           name: input.name,
-          date: input.date,
+          date: input.date.toISOString(),
           allDay: input.allDay,
-          startsOf: startsTime,
-          endsOf: endsTime,
+          startsOf: startsTime.toISOString(),
+          endsOf: endsTime.toISOString(),
           tagUuid: input.tagUuid,
-          userEmail: user?.email,
+          userEmail: user?.email ?? '',
         },
         DEFAULT_SETTING_API,
       ).then((response) => {
@@ -124,7 +123,7 @@ export const CalendarProvider = ({
               (value) =>
                 ({
                   userEmail: value.user,
-                  ownerEmail: user.email,
+                  ownerEmail: user.email ?? '',
                   eventUuid: response.data.uuid,
                 }) as AssignUsersPayload,
             ),
@@ -140,10 +139,10 @@ export const CalendarProvider = ({
     await createEventControllerHandle(
       {
         name: input.name,
-        date: input.date,
+        date: input.date.toISOString(),
         allDay: input.allDay,
         tagUuid: input.tagUuid,
-        userEmail: user?.email,
+        userEmail: user?.email ?? '',
         endsOf: null,
         startsOf: null,
       },
@@ -157,7 +156,7 @@ export const CalendarProvider = ({
             (value) =>
               ({
                 userEmail: value.user,
-                ownerEmail: user.email,
+                ownerEmail: user.email ?? '',
                 eventUuid: response.data.uuid,
               }) as AssignUsersPayload,
           ),
@@ -180,10 +179,10 @@ export const CalendarProvider = ({
         {
           uuid: input.uuid,
           name: input.name,
-          date: input.date,
+          date: input.date.toISOString(),
           allDay: input.allDay,
-          startsOf: startsTime,
-          endsOf: endsTime,
+          startsOf: startsTime.toISOString(),
+          endsOf: endsTime.toISOString(),
           tagUuid: input.tagUuid,
         },
         DEFAULT_SETTING_API,
@@ -191,7 +190,9 @@ export const CalendarProvider = ({
         if (!response) return;
         if (input.asssignedUsers.length) {
           console.log(
-            input.asssignedUsers.filter((assign) => assign.user !== user.email),
+            input.asssignedUsers.filter(
+              (assign) => assign.user !== (user.email ?? ''),
+            ),
           );
           // socket.emit(
           //   'assign-users',
@@ -213,7 +214,7 @@ export const CalendarProvider = ({
       {
         uuid: input.uuid,
         name: input.name,
-        date: input.date,
+        date: input.date.toISOString(),
         allDay: input.allDay,
         tagUuid: input.tagUuid,
         endsOf: null,
@@ -226,12 +227,12 @@ export const CalendarProvider = ({
         socket.emit(
           'assign-users',
           input.asssignedUsers
-            .filter((assign) => assign.user !== user.email)
+            .filter((assign) => assign.user !== (user.email ?? ''))
             .map(
               (value) =>
                 ({
                   userEmail: value.user,
-                  ownerEmail: user.email,
+                  ownerEmail: user.email ?? '',
                   eventUuid: input.uuid,
                 }) as AssignUsersPayload,
             ),

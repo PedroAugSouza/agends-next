@@ -67,11 +67,11 @@ export interface InputUpdateHabit {
 export interface InputCreateEvent {
   name: string;
   allDay: boolean;
-  date: Date;
+  date: string;
   /** @nullable */
-  startsOf: Date | null;
+  startsOf: string | null;
   /** @nullable */
-  endsOf: Date | null;
+  endsOf: string | null;
   tagUuid: string;
   userEmail: string;
 }
@@ -83,11 +83,11 @@ export interface InputUpdateEvent {
   /** @nullable */
   allDay: boolean | null;
   /** @nullable */
-  date: Date | null;
+  date: string | null;
   /** @nullable */
-  startsOf: Date | null;
+  startsOf: string | null;
   /** @nullable */
-  endsOf: Date | null;
+  endsOf: string | null;
   /** @nullable */
   tagUuid: string | null;
 }
@@ -214,7 +214,7 @@ export const createTagsControllerHandle = (
     inputCreateTag: InputCreateTag, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.post(
-      `http://localhost:8000/tag`,
+      `https://agends-api.vercel.app/tag`,
       inputCreateTag,options
     );
   }
@@ -226,7 +226,7 @@ export const getCreateTagsControllerHandleMutationFetcher = ( options?: AxiosReq
     return createTagsControllerHandle(arg, options);
   }
 }
-export const getCreateTagsControllerHandleMutationKey = () => [`http://localhost:8000/tag`] as const;
+export const getCreateTagsControllerHandleMutationKey = () => [`https://agends-api.vercel.app/tag`] as const;
 
 export type CreateTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createTagsControllerHandle>>>
 export type CreateTagsControllerHandleMutationError = AxiosError<IError>
@@ -252,7 +252,7 @@ export const removeTagsControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.delete(
-      `http://localhost:8000/tag/${uuid}`,options
+      `https://agends-api.vercel.app/tag/${uuid}`,options
     );
   }
 
@@ -263,7 +263,7 @@ export const getRemoveTagsControllerHandleMutationFetcher = (uuid: string, optio
     return removeTagsControllerHandle(uuid, options);
   }
 }
-export const getRemoveTagsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/tag/${uuid}`] as const;
+export const getRemoveTagsControllerHandleMutationKey = (uuid: string,) => [`https://agends-api.vercel.app/tag/${uuid}`] as const;
 
 export type RemoveTagsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeTagsControllerHandle>>>
 export type RemoveTagsControllerHandleMutationError = AxiosError<IError>
@@ -289,7 +289,7 @@ export const createHabitControllerHandle = (
     inputCreateHabit: InputCreateHabit, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.post(
-      `http://localhost:8000/habit`,
+      `https://agends-api.vercel.app/habit`,
       inputCreateHabit,options
     );
   }
@@ -301,7 +301,7 @@ export const getCreateHabitControllerHandleMutationFetcher = ( options?: AxiosRe
     return createHabitControllerHandle(arg, options);
   }
 }
-export const getCreateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
+export const getCreateHabitControllerHandleMutationKey = () => [`https://agends-api.vercel.app/habit`] as const;
 
 export type CreateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createHabitControllerHandle>>>
 export type CreateHabitControllerHandleMutationError = AxiosError<IError>
@@ -327,7 +327,7 @@ export const updateHabitControllerHandle = (
     inputUpdateHabit: InputUpdateHabit, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.patch(
-      `http://localhost:8000/habit`,
+      `https://agends-api.vercel.app/habit`,
       inputUpdateHabit,options
     );
   }
@@ -339,7 +339,7 @@ export const getUpdateHabitControllerHandleMutationFetcher = ( options?: AxiosRe
     return updateHabitControllerHandle(arg, options);
   }
 }
-export const getUpdateHabitControllerHandleMutationKey = () => [`http://localhost:8000/habit`] as const;
+export const getUpdateHabitControllerHandleMutationKey = () => [`https://agends-api.vercel.app/habit`] as const;
 
 export type UpdateHabitControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateHabitControllerHandle>>>
 export type UpdateHabitControllerHandleMutationError = AxiosError<IError>
@@ -365,7 +365,7 @@ export const removeHabitsControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.delete(
-      `http://localhost:8000/habit/${uuid}`,options
+      `https://agends-api.vercel.app/habit/${uuid}`,options
     );
   }
 
@@ -376,7 +376,7 @@ export const getRemoveHabitsControllerHandleMutationFetcher = (uuid: string, opt
     return removeHabitsControllerHandle(uuid, options);
   }
 }
-export const getRemoveHabitsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
+export const getRemoveHabitsControllerHandleMutationKey = (uuid: string,) => [`https://agends-api.vercel.app/habit/${uuid}`] as const;
 
 export type RemoveHabitsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeHabitsControllerHandle>>>
 export type RemoveHabitsControllerHandleMutationError = AxiosError<IError>
@@ -398,43 +398,11 @@ export const useRemoveHabitsControllerHandle = <TError = AxiosError<IError>>(
   }
 }
 
-export const getHabitByUuidControllerHandle = (
-    uuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<OutputGetHabitByUuidDTO>> => {
-    return axios.get(
-      `http://localhost:8000/habit/${uuid}`,options
-    );
-  }
-
-
-
-export const getGetHabitByUuidControllerHandleKey = (uuid: string,) => [`http://localhost:8000/habit/${uuid}`] as const;
-
-export type GetHabitByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>>
-export type GetHabitByUuidControllerHandleQueryError = AxiosError<IError>
-
-export const useGetHabitByUuidControllerHandle = <TError = AxiosError<IError>>(
-  uuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
-) => {
-  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
-
-  const isEnabled = swrOptions?.enabled !== false && !!(uuid)
-  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetHabitByUuidControllerHandleKey(uuid) : null);
-  const swrFn = () => getHabitByUuidControllerHandle(uuid, axiosOptions)
-
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
-
-  return {
-    swrKey,
-    ...query
-  }
-}
-
 export const createEventControllerHandle = (
     inputCreateEvent: InputCreateEvent, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<CreateEventControllerHandle201>> => {
     return axios.post(
-      `http://localhost:8000/event`,
+      `https://agends-api.vercel.app/event`,
       inputCreateEvent,options
     );
   }
@@ -446,7 +414,7 @@ export const getCreateEventControllerHandleMutationFetcher = ( options?: AxiosRe
     return createEventControllerHandle(arg, options);
   }
 }
-export const getCreateEventControllerHandleMutationKey = () => [`http://localhost:8000/event`] as const;
+export const getCreateEventControllerHandleMutationKey = () => [`https://agends-api.vercel.app/event`] as const;
 
 export type CreateEventControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof createEventControllerHandle>>>
 export type CreateEventControllerHandleMutationError = AxiosError<IError>
@@ -472,7 +440,7 @@ export const updateEventControllerHandle = (
     inputUpdateEvent: InputUpdateEvent, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.patch(
-      `http://localhost:8000/event`,
+      `https://agends-api.vercel.app/event`,
       inputUpdateEvent,options
     );
   }
@@ -484,7 +452,7 @@ export const getUpdateEventControllerHandleMutationFetcher = ( options?: AxiosRe
     return updateEventControllerHandle(arg, options);
   }
 }
-export const getUpdateEventControllerHandleMutationKey = () => [`http://localhost:8000/event`] as const;
+export const getUpdateEventControllerHandleMutationKey = () => [`https://agends-api.vercel.app/event`] as const;
 
 export type UpdateEventControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof updateEventControllerHandle>>>
 export type UpdateEventControllerHandleMutationError = AxiosError<IError>
@@ -510,7 +478,7 @@ export const removeEventsControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.delete(
-      `http://localhost:8000/event/${uuid}`,options
+      `https://agends-api.vercel.app/event/${uuid}`,options
     );
   }
 
@@ -521,7 +489,7 @@ export const getRemoveEventsControllerHandleMutationFetcher = (uuid: string, opt
     return removeEventsControllerHandle(uuid, options);
   }
 }
-export const getRemoveEventsControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/event/${uuid}`] as const;
+export const getRemoveEventsControllerHandleMutationKey = (uuid: string,) => [`https://agends-api.vercel.app/event/${uuid}`] as const;
 
 export type RemoveEventsControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeEventsControllerHandle>>>
 export type RemoveEventsControllerHandleMutationError = AxiosError<IError>
@@ -543,52 +511,11 @@ export const useRemoveEventsControllerHandle = <TError = AxiosError<IError>>(
   }
 }
 
-export const removeAssignmentControllerHandle = (
-    userEmail: string,
-    eventUuid: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axios.delete(
-      `http://localhost:8000/remove-assignment/${userEmail}/${eventUuid}`,options
-    );
-  }
-
-
-
-export const getRemoveAssignmentControllerHandleMutationFetcher = (userEmail: string,
-    eventUuid: string, options?: AxiosRequestConfig) => {
-  return (_: Key, __: { arg: Arguments }): Promise<AxiosResponse<void>> => {
-    return removeAssignmentControllerHandle(userEmail, eventUuid, options);
-  }
-}
-export const getRemoveAssignmentControllerHandleMutationKey = (userEmail: string,
-    eventUuid: string,) => [`http://localhost:8000/remove-assignment/${userEmail}/${eventUuid}`] as const;
-
-export type RemoveAssignmentControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof removeAssignmentControllerHandle>>>
-export type RemoveAssignmentControllerHandleMutationError = AxiosError<IError>
-
-export const useRemoveAssignmentControllerHandle = <TError = AxiosError<IError>>(
-  userEmail: string,
-    eventUuid: string, options?: { swr?:SWRMutationConfiguration<Awaited<ReturnType<typeof removeAssignmentControllerHandle>>, TError, Key, Arguments, Awaited<ReturnType<typeof removeAssignmentControllerHandle>>> & { swrKey?: string }, axios?: AxiosRequestConfig}
-) => {
-
-  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
-
-  const swrKey = swrOptions?.swrKey ?? getRemoveAssignmentControllerHandleMutationKey(userEmail,eventUuid);
-  const swrFn = getRemoveAssignmentControllerHandleMutationFetcher(userEmail,eventUuid, axiosOptions);
-
-  const query = useSWRMutation(swrKey, swrFn, swrOptions)
-
-  return {
-    swrKey,
-    ...query
-  }
-}
-
 export const markAsReadNotificationControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.patch(
-      `http://localhost:8000/notification/mask-as-read/${uuid}`,undefined,options
+      `https://agends-api.vercel.app/notification/mask-as-read/${uuid}`,undefined,options
     );
   }
 
@@ -599,7 +526,7 @@ export const getMarkAsReadNotificationControllerHandleMutationFetcher = (uuid: s
     return markAsReadNotificationControllerHandle(uuid, options);
   }
 }
-export const getMarkAsReadNotificationControllerHandleMutationKey = (uuid: string,) => [`http://localhost:8000/notification/mask-as-read/${uuid}`] as const;
+export const getMarkAsReadNotificationControllerHandleMutationKey = (uuid: string,) => [`https://agends-api.vercel.app/notification/mask-as-read/${uuid}`] as const;
 
 export type MarkAsReadNotificationControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof markAsReadNotificationControllerHandle>>>
 export type MarkAsReadNotificationControllerHandleMutationError = AxiosError<IError>
@@ -625,7 +552,7 @@ export const registerUserControllerHandle = (
     inputRegisterUser: InputRegisterUser, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     return axios.post(
-      `http://localhost:8000/register`,
+      `https://agends-api.vercel.app/register`,
       inputRegisterUser,options
     );
   }
@@ -637,7 +564,7 @@ export const getRegisterUserControllerHandleMutationFetcher = ( options?: AxiosR
     return registerUserControllerHandle(arg, options);
   }
 }
-export const getRegisterUserControllerHandleMutationKey = () => [`http://localhost:8000/register`] as const;
+export const getRegisterUserControllerHandleMutationKey = () => [`https://agends-api.vercel.app/register`] as const;
 
 export type RegisterUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof registerUserControllerHandle>>>
 export type RegisterUserControllerHandleMutationError = AxiosError<IError>
@@ -663,7 +590,7 @@ export const authenticateUserControllerHandle = (
     inputAuthenticateUser: InputAuthenticateUser, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<AuthenticateUserControllerHandle201>> => {
     return axios.post(
-      `http://localhost:8000/login`,
+      `https://agends-api.vercel.app/login`,
       inputAuthenticateUser,options
     );
   }
@@ -675,7 +602,7 @@ export const getAuthenticateUserControllerHandleMutationFetcher = ( options?: Ax
     return authenticateUserControllerHandle(arg, options);
   }
 }
-export const getAuthenticateUserControllerHandleMutationKey = () => [`http://localhost:8000/login`] as const;
+export const getAuthenticateUserControllerHandleMutationKey = () => [`https://agends-api.vercel.app/login`] as const;
 
 export type AuthenticateUserControllerHandleMutationResult = NonNullable<Awaited<ReturnType<typeof authenticateUserControllerHandle>>>
 export type AuthenticateUserControllerHandleMutationError = AxiosError<IError>
@@ -701,13 +628,13 @@ export const getAllTagsControllerHandle = (
     userUuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<OutputGetAllTags[]>> => {
     return axios.get(
-      `http://localhost:8000/tags/${userUuid}`,options
+      `https://agends-api.vercel.app/tags/${userUuid}`,options
     );
   }
 
 
 
-export const getGetAllTagsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/tags/${userUuid}`] as const;
+export const getGetAllTagsControllerHandleKey = (userUuid: string,) => [`https://agends-api.vercel.app/tags/${userUuid}`] as const;
 
 export type GetAllTagsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllTagsControllerHandle>>>
 export type GetAllTagsControllerHandleQueryError = AxiosError<IError>
@@ -733,13 +660,13 @@ export const getTagByUuidControllerHandle = (
     uuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<OutputGetByUuid>> => {
     return axios.get(
-      `http://localhost:8000/tags/by/${uuid}`,options
+      `https://agends-api.vercel.app/tags/by/${uuid}`,options
     );
   }
 
 
 
-export const getGetTagByUuidControllerHandleKey = (uuid: string,) => [`http://localhost:8000/tags/by/${uuid}`] as const;
+export const getGetTagByUuidControllerHandleKey = (uuid: string,) => [`https://agends-api.vercel.app/tags/by/${uuid}`] as const;
 
 export type GetTagByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getTagByUuidControllerHandle>>>
 export type GetTagByUuidControllerHandleQueryError = AxiosError<IError>
@@ -765,13 +692,13 @@ export const getAllHabitsControllerHandle = (
     userUuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<OutputGetAllHabitsDTO[]>> => {
     return axios.get(
-      `http://localhost:8000/habit/${userUuid}`,options
+      `https://agends-api.vercel.app/habit/user/${userUuid}`,options
     );
   }
 
 
 
-export const getGetAllHabitsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/habit/${userUuid}`] as const;
+export const getGetAllHabitsControllerHandleKey = (userUuid: string,) => [`https://agends-api.vercel.app/habit/user/${userUuid}`] as const;
 
 export type GetAllHabitsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllHabitsControllerHandle>>>
 export type GetAllHabitsControllerHandleQueryError = AxiosError<IError>
@@ -793,12 +720,44 @@ export const useGetAllHabitsControllerHandle = <TError = AxiosError<IError>>(
   }
 }
 
+export const getHabitByUuidControllerHandle = (
+    uuid: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<OutputGetHabitByUuidDTO>> => {
+    return axios.get(
+      `https://agends-api.vercel.app/habit/by/${uuid}`,options
+    );
+  }
+
+
+
+export const getGetHabitByUuidControllerHandleKey = (uuid: string,) => [`https://agends-api.vercel.app/habit/by/${uuid}`] as const;
+
+export type GetHabitByUuidControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>>
+export type GetHabitByUuidControllerHandleQueryError = AxiosError<IError>
+
+export const useGetHabitByUuidControllerHandle = <TError = AxiosError<IError>>(
+  uuid: string, options?: { swr?:SWRConfiguration<Awaited<ReturnType<typeof getHabitByUuidControllerHandle>>, TError> & { swrKey?: Key, enabled?: boolean }, axios?: AxiosRequestConfig }
+) => {
+  const {swr: swrOptions, axios: axiosOptions} = options ?? {}
+
+  const isEnabled = swrOptions?.enabled !== false && !!(uuid)
+  const swrKey = swrOptions?.swrKey ?? (() => isEnabled ? getGetHabitByUuidControllerHandleKey(uuid) : null);
+  const swrFn = () => getHabitByUuidControllerHandle(uuid, axiosOptions)
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(swrKey, swrFn, swrOptions)
+
+  return {
+    swrKey,
+    ...query
+  }
+}
+
 export const getAllEventsControllerHandle = (
     userUuid: string,
     params: GetAllEventsControllerHandleParams, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<OutputGetAllEventsDTO[]>> => {
     return axios.get(
-      `http://localhost:8000/events/${userUuid}`,{
+      `https://agends-api.vercel.app/events/${userUuid}`,{
     ...options,
         params: {...params, ...options?.params},}
     );
@@ -807,7 +766,7 @@ export const getAllEventsControllerHandle = (
 
 
 export const getGetAllEventsControllerHandleKey = (userUuid: string,
-    params: GetAllEventsControllerHandleParams,) => [`http://localhost:8000/events/${userUuid}`, ...(params ? [params]: [])] as const;
+    params: GetAllEventsControllerHandleParams,) => [`https://agends-api.vercel.app/events/${userUuid}`, ...(params ? [params]: [])] as const;
 
 export type GetAllEventsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllEventsControllerHandle>>>
 export type GetAllEventsControllerHandleQueryError = AxiosError<IError>
@@ -834,13 +793,13 @@ export const getAllNotificationsControllerHandle = (
     userUuid: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<OutputGetAllNotificationsDTO[]>> => {
     return axios.get(
-      `http://localhost:8000/notifications/${userUuid}`,options
+      `https://agends-api.vercel.app/notifications/${userUuid}`,options
     );
   }
 
 
 
-export const getGetAllNotificationsControllerHandleKey = (userUuid: string,) => [`http://localhost:8000/notifications/${userUuid}`] as const;
+export const getGetAllNotificationsControllerHandleKey = (userUuid: string,) => [`https://agends-api.vercel.app/notifications/${userUuid}`] as const;
 
 export type GetAllNotificationsControllerHandleQueryResult = NonNullable<Awaited<ReturnType<typeof getAllNotificationsControllerHandle>>>
 export type GetAllNotificationsControllerHandleQueryError = AxiosError<IError>
@@ -863,8 +822,6 @@ export const useGetAllNotificationsControllerHandle = <TError = AxiosError<IErro
 }
 
 
-export const getGetHabitByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetHabitByUuidDTO > = {}): OutputGetHabitByUuidDTO => ({name: faker.string.alpha(20), uuid: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), dayHabit: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20))), ...overrideResponse})
-
 export const getCreateEventControllerHandleResponseMock = (overrideResponse: Partial< CreateEventControllerHandle201 > = {}): CreateEventControllerHandle201 => ({uuid: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
 
 export const getAuthenticateUserControllerHandleResponseMock = (overrideResponse: Partial< AuthenticateUserControllerHandle201 > = {}): AuthenticateUserControllerHandle201 => ({access_token: faker.helpers.arrayElement([faker.string.alpha(20), undefined]), ...overrideResponse})
@@ -874,6 +831,8 @@ export const getGetAllTagsControllerHandleResponseMock = (): OutputGetAllTags[] 
 export const getGetTagByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetByUuid > = {}): OutputGetByUuid => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), ...overrideResponse})
 
 export const getGetAllHabitsControllerHandleResponseMock = (): OutputGetAllHabitsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20)})))
+
+export const getGetHabitByUuidControllerHandleResponseMock = (overrideResponse: Partial< OutputGetHabitByUuidDTO > = {}): OutputGetHabitByUuidDTO => ({name: faker.string.alpha(20), uuid: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), dayHabit: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20))), ...overrideResponse})
 
 export const getGetAllEventsControllerHandleResponseMock = (): OutputGetAllEventsDTO[] => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), name: faker.string.alpha(20), allDay: faker.datatype.boolean(), date: `${faker.date.past().toISOString().split('.')[0]}Z`, startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, tag: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), events: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20)))}, assignedEventToUsers: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({uuid: faker.string.alpha(20), isOwner: faker.datatype.boolean(), eventUuid: faker.string.alpha(20), userUuid: faker.string.alpha(20), user: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), email: faker.string.alpha(20)}, event: {uuid: faker.string.alpha(20), name: faker.string.alpha(20), allDay: faker.datatype.boolean(), date: `${faker.date.past().toISOString().split('.')[0]}Z`, startsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, endsOf: `${faker.date.past().toISOString().split('.')[0]}Z`, tagUuid: faker.string.alpha(20), Tag: {...{uuid: faker.string.alpha(20), name: faker.string.alpha(20), color: faker.string.alpha(20), userUuid: faker.string.alpha(20), events: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha(20)))},}, createdAt: `${faker.date.past().toISOString().split('.')[0]}Z`, updatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`}}))})))
 
@@ -930,18 +889,6 @@ export const getRemoveHabitsControllerHandleMockHandler = (overrideResponse?: vo
   })
 }
 
-export const getGetHabitByUuidControllerHandleMockHandler = (overrideResponse?: OutputGetHabitByUuidDTO | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetHabitByUuidDTO> | OutputGetHabitByUuidDTO)) => {
-  return http.get('*/habit/:uuid', async (info) => {await delay(1000);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetHabitByUuidControllerHandleResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
-
 export const getCreateEventControllerHandleMockHandler = (overrideResponse?: CreateEventControllerHandle201 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<CreateEventControllerHandle201> | CreateEventControllerHandle201)) => {
   return http.post('*/event', async (info) => {await delay(1000);
   
@@ -966,16 +913,6 @@ export const getUpdateEventControllerHandleMockHandler = (overrideResponse?: voi
 
 export const getRemoveEventsControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
   return http.delete('*/event/:uuid', async (info) => {await delay(1000);
-  if (typeof overrideResponse === 'function') {await overrideResponse(info); }
-    return new HttpResponse(null,
-      { status: 200,
-        
-      })
-  })
-}
-
-export const getRemoveAssignmentControllerHandleMockHandler = (overrideResponse?: void | ((info: Parameters<Parameters<typeof http.delete>[1]>[0]) => Promise<void> | void)) => {
-  return http.delete('*/remove-assignment/:userEmail/:eventUuid', async (info) => {await delay(1000);
   if (typeof overrideResponse === 'function') {await overrideResponse(info); }
     return new HttpResponse(null,
       { status: 200,
@@ -1041,11 +978,23 @@ export const getGetTagByUuidControllerHandleMockHandler = (overrideResponse?: Ou
 }
 
 export const getGetAllHabitsControllerHandleMockHandler = (overrideResponse?: OutputGetAllHabitsDTO[] | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetAllHabitsDTO[]> | OutputGetAllHabitsDTO[])) => {
-  return http.get('*/habit/:userUuid', async (info) => {await delay(1000);
+  return http.get('*/habit/user/:userUuid', async (info) => {await delay(1000);
   
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
             ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
             : getGetAllHabitsControllerHandleResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  })
+}
+
+export const getGetHabitByUuidControllerHandleMockHandler = (overrideResponse?: OutputGetHabitByUuidDTO | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<OutputGetHabitByUuidDTO> | OutputGetHabitByUuidDTO)) => {
+  return http.get('*/habit/by/:uuid', async (info) => {await delay(1000);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
+            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
+            : getGetHabitByUuidControllerHandleResponseMock()),
       { status: 200,
         headers: { 'Content-Type': 'application/json' }
       })
@@ -1081,17 +1030,16 @@ export const getExampleTitleMock = () => [
   getCreateHabitControllerHandleMockHandler(),
   getUpdateHabitControllerHandleMockHandler(),
   getRemoveHabitsControllerHandleMockHandler(),
-  getGetHabitByUuidControllerHandleMockHandler(),
   getCreateEventControllerHandleMockHandler(),
   getUpdateEventControllerHandleMockHandler(),
   getRemoveEventsControllerHandleMockHandler(),
-  getRemoveAssignmentControllerHandleMockHandler(),
   getMarkAsReadNotificationControllerHandleMockHandler(),
   getRegisterUserControllerHandleMockHandler(),
   getAuthenticateUserControllerHandleMockHandler(),
   getGetAllTagsControllerHandleMockHandler(),
   getGetTagByUuidControllerHandleMockHandler(),
   getGetAllHabitsControllerHandleMockHandler(),
+  getGetHabitByUuidControllerHandleMockHandler(),
   getGetAllEventsControllerHandleMockHandler(),
   getGetAllNotificationsControllerHandleMockHandler()
 ]
